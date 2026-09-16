@@ -4,6 +4,7 @@ import dev.ivchenko.webview.Webview;
 import dev.ivchenko.webview.WebviewBackend;
 import dev.ivchenko.webview.WebviewParameters;
 import dev.ivchenko.webview.testing.Loads;
+import dev.ivchenko.webview.testing.Screenshots;
 import dev.ivchenko.webview.testing.Tags;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
@@ -30,6 +31,7 @@ public abstract class NetworkContractTest extends DisplayContractTest {
 
             Assertions.assertTrue(Loads.eval(webview, "document.title").toLowerCase().contains("google"));
             Assertions.assertEquals("true", Loads.eval(webview, "String(document.body.innerText.length > 0)"));
+            Screenshots.capture("network-google");
         }
     }
 }

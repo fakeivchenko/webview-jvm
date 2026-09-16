@@ -47,6 +47,8 @@ val displayTest = tasks.register<Test>("displayTest") {
         excludeTags("network")
     }
     systemProperty("webview.requireDisplay", System.getProperty("webview.requireDisplay", "false"))
+    systemProperty("webview.screenshots", System.getProperty("webview.screenshots", "false"))
+    systemProperty("webview.screenshotsDir", layout.buildDirectory.dir("screenshots").get().asFile.absolutePath)
     configureWebviewTest()
     shouldRunAfter(tasks.test)
 }
@@ -60,6 +62,8 @@ val networkTest = tasks.register<Test>("networkTest") {
         includeTags("network")
     }
     systemProperty("webview.requireDisplay", System.getProperty("webview.requireDisplay", "false"))
+    systemProperty("webview.screenshots", System.getProperty("webview.screenshots", "false"))
+    systemProperty("webview.screenshotsDir", layout.buildDirectory.dir("screenshots").get().asFile.absolutePath)
     configureWebviewTest()
     shouldRunAfter(displayTest)
 }

@@ -32,14 +32,22 @@ jobs:
       - name: Install GTK, WebKitGTK and Xvfb
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends libgtk-3-0t64 libwebkit2gtk-4.1-0 xvfb
+          sudo apt-get install -y --no-install-recommends libgtk-3-0t64 libwebkit2gtk-4.1-0 libxtst6 xvfb
 
       - name: Headless tests
         run: ./gradlew test
 
       # A display test that silently skips on CI is a false pass.
       - name: Display tests under Xvfb
-        run: xvfb-run -a ./gradlew displayTest -Dwebview.requireDisplay=true
+        run: xvfb-run -a ./gradlew displayTest -Dwebview.requireDisplay=true -Dwebview.screenshots=true
+
+      - name: Screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots-linux
+          path: '**/build/screenshots/'
+          if-no-files-found: error
 
       - name: Jars and Javadoc
         run: ./gradlew assemble javadoc
@@ -71,7 +79,15 @@ jobs:
 
       # The runner's session has a desktop, so WebView2 can attach; no Xvfb equivalent needed.
       - name: Display tests
-        run: ./gradlew displayTest "-Dwebview.requireDisplay=true"
+        run: ./gradlew displayTest "-Dwebview.requireDisplay=true" "-Dwebview.screenshots=true"
+
+      - name: Screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots-windows
+          path: '**/build/screenshots/'
+          if-no-files-found: error
 
       - name: Test reports
         if: failure()
