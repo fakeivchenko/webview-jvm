@@ -1,0 +1,7 @@
+.git
+.gradle
+.idea
+.kotlin
+**/build
+Dockerfile*
+scripts/windows

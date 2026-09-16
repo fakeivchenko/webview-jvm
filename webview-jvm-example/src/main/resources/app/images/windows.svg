@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <title>Windows</title>
+  <ellipse cx="64" cy="112" rx="34" ry="8" fill="#000" opacity=".12"/>
+  <g transform="translate(20 20) skewY(-6)">
+    <rect x="0" y="0" width="41" height="41" rx="3" fill="#0ea5e9"/>
+    <rect x="47" y="0" width="41" height="41" rx="3" fill="#0284c7"/>
+    <rect x="0" y="47" width="41" height="41" rx="3" fill="#0284c7"/>
+    <rect x="47" y="47" width="41" height="41" rx="3" fill="#0369a1"/>
+  </g>
+</svg>

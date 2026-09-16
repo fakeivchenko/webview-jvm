@@ -1,0 +1,21 @@
+# syntax=docker/dockerfile:1
+#
+# The CI test environment, runnable locally; the build fails if any test fails:
+#
+#   docker buildx build -f Dockerfile.test .
+
+FROM eclipse-temurin:25-jdk-noble
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgtk-3-0t64 libwebkit2gtk-4.1-0 xvfb \
+    && rm -rf /var/lib/apt/lists/*
+
+# No GPU in a container: keep WebKit on the software path.
+ENV GDK_BACKEND=x11 \
+    WEBKIT_DISABLE_DMABUF_RENDERER=1 \
+    WEBKIT_DISABLE_COMPOSITING_MODE=1
+
+WORKDIR /src
+COPY . .
+RUN --mount=type=cache,target=/root/.gradle \
+    ./gradlew --no-daemon --console=plain test \
+    && xvfb-run -a ./gradlew --no-daemon --console=plain displayTest -Dwebview.requireDisplay=true

@@ -1,0 +1,30 @@
+{
+  "reflection": [
+    {
+      "type": "dev.ivchenko.webview.example.WebviewExampleApplication",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "main",
+          "parameterTypes": [
+            "java.lang.String[]"
+          ]
+        }
+      ]
+    }
+  ],
+  "resources": [
+    {
+      "glob": "META-INF/services/java.time.zone.ZoneRulesProvider"
+    },
+    {
+      "glob": "META-INF/services/org.slf4j.spi.SLF4JServiceProvider"
+    },
+    {
+      "glob": "app/**"
+    },
+    {
+      "glob": "simplelogger.properties"
+    }
+  ]
+}

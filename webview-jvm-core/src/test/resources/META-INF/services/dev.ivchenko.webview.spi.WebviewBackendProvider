@@ -1,0 +1,3 @@
+dev.ivchenko.webview.testing.FakeProviders$Preferred
+dev.ivchenko.webview.testing.FakeProviders$Fallback
+dev.ivchenko.webview.testing.FakeProviders$OtherPlatform

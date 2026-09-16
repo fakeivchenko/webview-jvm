@@ -1,0 +1,18 @@
+# syntax=docker/dockerfile:1
+#
+# Native executable of the example, built in a container:
+#
+#   docker buildx build -f Dockerfile.native -o build/native-docker .
+#
+# Oracle Linux 9 = glibc 2.34, so the binary runs on any distribution at least that new.
+
+FROM ghcr.io/graalvm/native-image-community:25-ol9 AS build
+WORKDIR /src
+COPY . .
+ENV GRAALVM_HOME=/usr/lib64/graalvm/graalvm-community-java25
+ARG PROJECT_VERSION=0.0.0-dev
+RUN --mount=type=cache,target=/root/.gradle \
+    ./gradlew --no-daemon --console=plain :webview-jvm-example:nativeCompile -PprojectVersion="$PROJECT_VERSION"
+
+FROM scratch AS artifact
+COPY --from=build /src/webview-jvm-example/build/native/nativeCompile/webview-jvm-example /webview-jvm-example

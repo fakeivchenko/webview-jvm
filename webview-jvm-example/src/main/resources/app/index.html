@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>webview-jvm</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main>
+    <header>
+        <img id="platform-image" alt="">
+        <div>
+            <h1>webview-jvm</h1>
+            <p>A desktop window rendered by the system web engine, driven from Java.
+                Running on <strong id="platform">…</strong>.</p>
+        </div>
+    </header>
+
+    <section class="card">
+        <h2>Page &rarr; Java</h2>
+        <p>The page asks the JVM about itself. <code>window.systemInfo()</code> returns a promise.</p>
+        <dl>
+            <dt>Java</dt>
+            <dd id="java">…</dd>
+            <dt>OS</dt>
+            <dd id="os">…</dd>
+            <dt>Backend</dt>
+            <dd id="backend">…</dd>
+        </dl>
+    </section>
+
+    <section class="card">
+        <h2>Page &rarr; Java, with an argument</h2>
+        <p>Hashing happens in Java, not in the page: <code>window.sha256(text)</code>.</p>
+        <div class="row">
+            <input id="hash-input" type="text" value="webview-jvm" autocomplete="off">
+            <button id="hash-button" type="button">Hash</button>
+        </div>
+        <output id="hash-output">…</output>
+    </section>
+
+    <section class="card">
+        <h2>Java &rarr; page</h2>
+        <p>Nothing here asks for this. Java calls into the page once a second.</p>
+        <div class="metric"><span id="heap">…</span> <small>MB heap in use</small></div>
+    </section>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
