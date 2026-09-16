@@ -27,9 +27,7 @@ subprojects {
         options.encoding = "UTF-8"
     }
 
-    plugins.withId("java-library") {
-        apply(plugin = "maven-publish")
-
+    plugins.withId("maven-publish") {
         configure<PublishingExtension> {
             publications {
                 create<MavenPublication>("maven") {

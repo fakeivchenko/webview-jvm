@@ -1,5 +1,6 @@
 plugins {
     id("java-library")
+    id("maven-publish")
     id("io.freefair.lombok")
 }
 
@@ -36,7 +37,7 @@ tasks.test {
     configureWebviewTest()
 }
 
-val displayTest by tasks.registering(Test::class) {
+val displayTest = tasks.register<Test>("displayTest") {
     description = "Runs the tests that open a real window."
     group = "verification"
     testClassesDirs = sourceSets.test.get().output.classesDirs
@@ -50,7 +51,7 @@ val displayTest by tasks.registering(Test::class) {
     shouldRunAfter(tasks.test)
 }
 
-val networkTest by tasks.registering(Test::class) {
+val networkTest = tasks.register<Test>("networkTest") {
     description = "Runs the tests that load pages from the public internet."
     group = "verification"
     testClassesDirs = sourceSets.test.get().output.classesDirs

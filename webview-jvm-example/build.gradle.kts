@@ -27,7 +27,7 @@ dependencies {
 
 val windows = org.gradle.internal.os.OperatingSystem.current().isWindows
 
-val windowsResources by tasks.registering(Exec::class) {
+val windowsResources = tasks.register<Exec>("windowsResources") {
     description = "Compiles src/main/windows/app.rc into the .res linked into the native executable."
     group = "build"
     onlyIf { windows }
