@@ -65,7 +65,10 @@ public class Foundation {
     /** The URL an {@code NSError} from WebKit was loading, or {@code null}. */
     public String errorFailingUrl(MemorySegment error) {
         MemorySegment userInfo = ObjC.send(error, "userInfo");
-        return string(ObjC.send(userInfo, "objectForKey:", string("NSErrorFailingURLStringKey")));
+        String url = string(ObjC.send(userInfo, "objectForKey:", string("NSErrorFailingURLStringKey")));
+        if (url != null) return url;
+        MemorySegment nsUrl = ObjC.send(userInfo, "objectForKey:", string("NSErrorFailingURLKey"));
+        return ObjC.isNull(nsUrl) ? null : urlString(nsUrl);
     }
 
     /**
@@ -121,9 +124,14 @@ public class Foundation {
         if (!ObjC.isNull(object)) ObjC.sendVoid(object, "release");
     }
 
-    /** {@code CFBundleShortVersionString} of the bundle that defines {@code cls}, or {@code null}. */
+    /** {@code CFBundleVersion} of the bundle that defines {@code cls}, or {@code null}. */
     public String bundleVersion(MemorySegment cls) {
         MemorySegment bundle = ObjC.send(ObjC.cls("NSBundle"), "bundleForClass:", cls);
-        return string(ObjC.send(bundle, "objectForInfoDictionaryKey:", string("CFBundleShortVersionString")));
+        return string(ObjC.send(bundle, "objectForInfoDictionaryKey:", string("CFBundleVersion")));
+    }
+
+    /** {@code -[NSProcessInfo operatingSystemVersionString]}, e.g. {@code Version 14.6.1 (Build 23G93)}. */
+    public String operatingSystemVersion() {
+        return string(ObjC.send(ObjC.send(ObjC.cls("NSProcessInfo"), "processInfo"), "operatingSystemVersionString"));
     }
 }

@@ -6,6 +6,8 @@ import lombok.experimental.UtilityClass;
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SymbolLookup;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /** WebKit: {@code WKWebView}, its configuration, user scripts, script messages and URL scheme tasks. */
 @UtilityClass
@@ -15,6 +17,7 @@ public class WebKit {
         SymbolLookup _ = NativeLibraries.load("/System/Library/Frameworks/WebKit.framework/WebKit");
     }
 
+    private final Pattern MACOS_RELEASE = Pattern.compile("(\\d+(?:\\.\\d+)+)");
     private final long INJECT_AT_DOCUMENT_START = 0;
     private final long AUTORESIZE_WIDTH_AND_HEIGHT = (1 << 1) | (1 << 4);
 
@@ -107,9 +110,14 @@ public class WebKit {
         ObjC.sendVoid(task, "didFailWithError:", Foundation.error(404, message));
     }
 
-    /** The version of the WebKit framework actually loaded. */
+    /**
+     * The version of the WebKit framework actually loaded. Its bundle version is a dotted build number on most
+     * releases; where it is a bare number, the macOS release that ships it is the version people recognise.
+     */
     public String version() {
-        String version = Foundation.bundleVersion(ObjC.cls("WKWebView"));
-        return version == null ? "0" : version;
+        String build = Foundation.bundleVersion(ObjC.cls("WKWebView"));
+        if (build != null && build.contains(".")) return build;
+        Matcher release = MACOS_RELEASE.matcher(Foundation.operatingSystemVersion());
+        return (build == null ? "0" : build) + " macOS " + (release.find() ? release.group(1) : "0");
     }
 }

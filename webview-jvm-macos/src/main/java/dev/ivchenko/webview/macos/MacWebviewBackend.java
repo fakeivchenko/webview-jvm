@@ -74,6 +74,7 @@ public class MacWebviewBackend extends AbstractWebviewBackend {
     private volatile MemorySegment webView;
     private volatile MemorySegment userContentController;
     private volatile MemorySegment delegate;
+    private volatile String loading = "about:blank";
     private volatile String reportedFailure;
     private volatile boolean runningApplication;
 
@@ -159,6 +160,7 @@ public class MacWebviewBackend extends AbstractWebviewBackend {
     public void navigate(String url) {
         Objects.requireNonNull(url, "url");
         this.dispatcher().run(() -> {
+            this.loading = url;
             this.reportedFailure = null;
             WebKit.loadUrl(this.webView(), url);
         });
@@ -294,7 +296,7 @@ public class MacWebviewBackend extends AbstractWebviewBackend {
 
     private void handleLoadFailed(MemorySegment error) {
         String url = Foundation.errorFailingUrl(error);
-        if (url == null) url = this.url();
+        if (url == null) url = this.loading;
         if (url.equals(this.reportedFailure)) return;
         this.reportedFailure = url;
         this.emitLoad(LoadEvent.failed(url, Foundation.errorDescription(error)));
@@ -310,7 +312,7 @@ public class MacWebviewBackend extends AbstractWebviewBackend {
         try {
             WebKit.finishTask(task, url, MimeTypeUtil.of(path), ResourceUtil.read(path));
         } catch (ResourceNotFoundException e) {
-            if (url.equals(this.url())) {
+            if (url.equals(this.loading)) {
                 this.reportedFailure = url;
                 this.emitLoad(LoadEvent.failed(url, e.getMessage()));
             }

@@ -128,7 +128,10 @@ public class ChromeWebviewBackend extends AbstractWebviewBackend {
         this.checkOpen();
         this.devTools.call("Browser.setWindowBounds", DevToolsClient.params()
                 .add("windowId", this.windowId)
-                .add("bounds", DevToolsClient.params().add("width", width).add("height", height)));
+                .add("bounds", DevToolsClient.params()
+                        .add("windowState", "normal")
+                        .add("width", width)
+                        .add("height", height)));
     }
 
     @Override
