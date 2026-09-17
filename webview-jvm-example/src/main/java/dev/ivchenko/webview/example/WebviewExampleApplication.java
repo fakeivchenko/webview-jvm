@@ -54,7 +54,7 @@ public class WebviewExampleApplication {
             webview.onLoad(WebviewExampleApplication::logLoad);
 
             // Bind before loading: handlers are injected into every document as it starts.
-            webview.bind("systemInfo", _ -> systemInfo());
+            webview.bind("systemInfo", _ -> systemInfo(webview));
             webview.bind("sha256", WebviewExampleApplication::sha256);
 
             webview.loadResource(PAGE);
@@ -88,15 +88,16 @@ public class WebviewExampleApplication {
     }
 
     /** Answers {@code window.systemInfo()}. Handlers exchange strings; this one sends JSON. */
-    private static String systemInfo() {
+    private static String systemInfo(WebviewBackend webview) {
         String backend = Webview.provider().map(WebviewBackendProvider::name).orElse("unknown");
         return """
-                {"java": "%s", "os": "%s %s", "backend": "%s", "platform": "%s", "platformName": "%s"}"""
+                {"java": "%s", "os": "%s %s", "backend": "%s", "engine": "%s", "platform": "%s", "platformName": "%s"}"""
                 .formatted(
                         System.getProperty("java.version"),
                         System.getProperty("os.name"),
                         System.getProperty("os.arch"),
                         backend,
+                        webview.engine(),
                         platform(),
                         platformName());
     }

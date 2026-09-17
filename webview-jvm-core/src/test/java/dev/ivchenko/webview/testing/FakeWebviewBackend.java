@@ -76,6 +76,11 @@ public class FakeWebviewBackend extends AbstractWebviewBackend {
     }
 
     @Override
+    public String engine() {
+        return "fake 0";
+    }
+
+    @Override
     public String title() {
         return this.title;
     }

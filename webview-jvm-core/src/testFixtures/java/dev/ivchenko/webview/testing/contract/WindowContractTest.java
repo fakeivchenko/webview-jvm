@@ -53,6 +53,7 @@ public abstract class WindowContractTest extends DisplayContractTest {
             Screenshots.capture("window-local-page");
 
             Assertions.assertEquals("webview-jvm :: page", webview.title());
+            Assertions.assertTrue(webview.engine().matches(".+ \\d+(\\.\\d+)+"), "engine: " + webview.engine());
             Assertions.assertTrue(webview.width() > 0 && webview.height() > 0, "Window has no size");
         }
     }

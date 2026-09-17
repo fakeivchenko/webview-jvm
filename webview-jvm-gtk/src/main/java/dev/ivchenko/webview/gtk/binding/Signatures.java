@@ -35,6 +35,7 @@ public class Signatures {
 
     /** {@code T* f(void)} */
     public final FunctionDescriptor POINTER_VOID = FunctionDescriptor.of(C_POINTER);
+    public final FunctionDescriptor INT_VOID = FunctionDescriptor.of(C_INT);
 
     /** {@code void f(T*)} */
     public final FunctionDescriptor VOID_POINTER = FunctionDescriptor.ofVoid(C_POINTER);

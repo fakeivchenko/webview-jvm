@@ -100,6 +100,11 @@ public class WindowsWebviewBackend extends AbstractWebviewBackend {
     }
 
     @Override
+    public String engine() {
+        return this.dispatcher().call(() -> "WebView2 " + WebView2.browserVersion(this.alive(this.environment)));
+    }
+
+    @Override
     public String title() {
         return this.dispatcher().call(() -> User32.title(this.window()));
     }

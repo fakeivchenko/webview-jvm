@@ -8,6 +8,7 @@ async function showSystemInfo() {
     byId("java").textContent = info.java;
     byId("os").textContent = info.os;
     byId("backend").textContent = info.backend;
+    byId("engine").textContent = info.engine;
     byId("platform").textContent = info.platformName;
     // A relative URL, resolved against app://local/app/ - and served from the jar like this page.
     byId("platform-image").src = `images/${info.platform}.svg`;
