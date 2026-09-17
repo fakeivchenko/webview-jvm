@@ -7,6 +7,7 @@ import dev.ivchenko.webview.event.LoadEvent;
 import dev.ivchenko.webview.exception.BackendNotAvailableException;
 import dev.ivchenko.webview.spi.WebviewBackendProvider;
 import dev.ivchenko.webview.util.PlatformUtil;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.charset.StandardCharsets;
@@ -28,18 +29,19 @@ import java.util.concurrent.TimeUnit;
  * {@code WEBVIEW_DEV_SERVER_URL=http://localhost:5173 ./gradlew :webview-jvm-example:run} - and hot reload drives this
  * same window with this same Java code.</p>
  *
- * <p>Note what this module compiles against: {@code webview-jvm-core} only, with the GTK backend as a
- * {@code runtimeOnly} dependency. Nothing here names GTK. Supporting another platform is a build file change rather
- * than a code change, because {@link Webview} resolves the backend through {@link java.util.ServiceLoader} at
- * startup.</p>
+ * <p>Note what this module compiles against: {@code webview-jvm-core} only, with the backends as {@code runtimeOnly}
+ * dependencies. Nothing here names GTK or WebView2. Supporting another platform is a build file change rather than a
+ * code change, because {@link Webview} resolves the backend through {@link java.util.ServiceLoader} at startup.</p>
  *
  * <p>Run it with {@code ./gradlew :webview-jvm-example:run}.</p>
  */
 @Slf4j
+@UtilityClass
 public class WebviewExampleApplication {
     private static final String PAGE = "app/index.html";
     private static final long BYTES_PER_MEGABYTE = 1024 * 1024;
 
+    /** Opens the window and blocks until it is closed. */
     @SuppressWarnings("unused")
     static void main(String[] args) {
         WebviewParameters parameters = WebviewParameters.builder()

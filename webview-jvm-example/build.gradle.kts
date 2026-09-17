@@ -9,6 +9,10 @@ java {
     targetCompatibility = JavaVersion.VERSION_25
 }
 
+tasks.javadoc {
+    (options as StandardJavadocDocletOptions).addBooleanOption("Xdoclint:all,-missing", true)
+}
+
 application {
     mainClass = "dev.ivchenko.webview.example.WebviewExampleApplication"
     applicationDefaultJvmArgs = listOf("--enable-native-access=ALL-UNNAMED")
