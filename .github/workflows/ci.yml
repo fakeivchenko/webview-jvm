@@ -185,11 +185,19 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # Also puts the Visual Studio toolchain native-image needs on the PATH.
+      # Also puts the Visual Studio toolchain native-image needs on the PATH; the Gradle plugin finds the
+      # toolchain through GRAALVM_HOME, which this step exports.
       - uses: graalvm/setup-graalvm@v1
         with:
           java-version: 25
           distribution: graalvm-community
+
+      # Gradle itself runs on the same JDK as the test jobs: its daemon does not start reliably on the
+      # GraalVM JDK on the Windows runner ("Could not dispatch a message to the daemon").
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 25
 
       - uses: gradle/actions/setup-gradle@v6
 
