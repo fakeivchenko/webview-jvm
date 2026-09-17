@@ -1,7 +1,10 @@
 package dev.ivchenko.webview.ui;
 
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 
 /**
@@ -13,6 +16,12 @@ import java.util.function.Supplier;
  * shares: identify the thread, hand it work, and run a call inline when already on it.</p>
  */
 public abstract class UiDispatcher {
+    /**
+     * How long {@link #call} waits for the UI thread. Nothing a window does takes anywhere near this; a UI thread
+     * that stays silent for a minute is stuck, and an exception says so where a hang would not.
+     */
+    private static final Duration CALL_TIMEOUT = Duration.ofSeconds(60);
+
     /** Whether the calling thread is the UI thread; calls from it must not block on it. */
     public abstract boolean isDispatchThread();
 
@@ -38,6 +47,8 @@ public abstract class UiDispatcher {
     /**
      * Runs {@code action} on the UI thread and returns its result. Failures surface with their original type; calls
      * made from the UI thread itself run inline rather than deadlocking.
+     *
+     * @throws IllegalStateException if the UI thread does not answer within a minute
      */
     public final <T> T call(Supplier<T> action) {
         if (this.isDispatchThread()) return this.execute(action);
@@ -51,12 +62,17 @@ public abstract class UiDispatcher {
             }
         });
         try {
-            return result.join();
-        } catch (CompletionException e) {
+            return result.get(CALL_TIMEOUT.toSeconds(), TimeUnit.SECONDS);
+        } catch (ExecutionException e) {
             Throwable cause = e.getCause();
             if (cause instanceof RuntimeException runtime) throw runtime;
             if (cause instanceof Error error) throw error;
-            throw e;
+            throw new IllegalStateException(cause);
+        } catch (TimeoutException _) {
+            throw new IllegalStateException("The UI thread did not answer within " + CALL_TIMEOUT.toSeconds() + " s");
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted while waiting for the UI thread", e);
         }
     }
 }

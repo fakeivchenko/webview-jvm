@@ -6,6 +6,7 @@
         {
           "name": "drain",
           "parameterTypes": [
+            "java.lang.foreign.MemorySegment",
             "java.lang.foreign.MemorySegment"
           ]
         }
@@ -324,6 +325,16 @@
           "jlong",
           "jlong"
         ]
+      },
+      {
+        "returnType": "void",
+        "parameterTypes": [
+          "void*",
+          "void*",
+          "void*",
+          "void*",
+          "jboolean"
+        ]
       }
     ],
     "directUpcalls": [
@@ -332,6 +343,7 @@
         "method": "drain",
         "returnType": "void",
         "parameterTypes": [
+          "void*",
           "void*"
         ]
       },

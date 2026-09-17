@@ -126,6 +126,10 @@ public class Signatures {
     public final FunctionDescriptor MSG_VOID_ID_BOOL =
             FunctionDescriptor.ofVoid(C_POINTER, C_POINTER, C_POINTER, C_BOOL);
 
+    /** {@code void -[receiver selector:SEL selector:id selector:BOOL]} */
+    public final FunctionDescriptor MSG_VOID_SEL_ID_BOOL =
+            FunctionDescriptor.ofVoid(C_POINTER, C_POINTER, C_POINTER, C_POINTER, C_BOOL);
+
     /** {@code id -[receiver selector:const void* selector:NSUInteger]} */
     public final FunctionDescriptor MSG_ID_POINTER_LONG =
             FunctionDescriptor.of(C_POINTER, C_POINTER, C_POINTER, C_POINTER, C_LONG);
@@ -165,6 +169,9 @@ public class Signatures {
 
     // --- callbacks ---
 
+    /** A method without arguments: {@code -(void)method}, receiving {@code self} and {@code _cmd}. */
+    public final FunctionDescriptor DELEGATE_0 = FunctionDescriptor.ofVoid(C_POINTER, C_POINTER);
+
     /** A delegate method with one argument: {@code -(void)method:(id)a}, receiving {@code self} and {@code _cmd} first. */
     public final FunctionDescriptor DELEGATE_1 = VOID_POINTER_POINTER_POINTER;
 
@@ -177,7 +184,4 @@ public class Signatures {
 
     /** {@code void (^)(id result, NSError* error)}, receiving the block itself first. */
     public final FunctionDescriptor COMPLETION_BLOCK = VOID_POINTER_POINTER_POINTER;
-
-    /** {@code dispatch_function_t}. */
-    public final FunctionDescriptor DISPATCH_FUNCTION = VOID_POINTER;
 }

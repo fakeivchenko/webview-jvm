@@ -14,8 +14,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * The Objective-C runtime, libdispatch and the block ABI: everything Cocoa needs that is not a message send to a
- * particular class.
+ * The Objective-C runtime and the block ABI: everything Cocoa needs that is not a message send to a particular
+ * class.
  *
  * <p>Messages go through {@code objc_msgSend}, one handle per signature; the {@code send*} methods name the shape, the
  * caller names the selector. Selectors and classes are looked up once and cached, so a send costs one hash lookup and
@@ -40,10 +40,7 @@ public class ObjC {
     private final MethodHandle POOL_POP =
             NativeLibraries.downcall(OBJC, "objc_autoreleasePoolPop", Signatures.VOID_POINTER);
     private final MethodHandle PTHREAD_MAIN_NP = NativeLibraries.downcall(SYSTEM, "pthread_main_np", Signatures.INT_VOID);
-    private final MethodHandle DISPATCH_ASYNC_F =
-            NativeLibraries.downcall(SYSTEM, "dispatch_async_f", Signatures.VOID_POINTER_POINTER_POINTER);
 
-    private final MemorySegment MAIN_QUEUE = SYSTEM.findOrThrow("_dispatch_main_q");
     private final MemorySegment GLOBAL_BLOCK_ISA = SYSTEM.findOrThrow("_NSConcreteGlobalBlock");
     private final int BLOCK_IS_GLOBAL = 1 << 28;
     private final VarHandle BLOCK_CONTEXT = Signatures.BLOCK.varHandle(MemoryLayout.PathElement.groupElement("context"));
@@ -62,6 +59,8 @@ public class ObjC {
             NativeLibraries.downcall(OBJC, "objc_msgSend", Signatures.MSG_VOID_ID_ID);
     private final MethodHandle MSG_VOID_ID_BOOL =
             NativeLibraries.downcall(OBJC, "objc_msgSend", Signatures.MSG_VOID_ID_BOOL);
+    private final MethodHandle MSG_VOID_SEL_ID_BOOL =
+            NativeLibraries.downcall(OBJC, "objc_msgSend", Signatures.MSG_VOID_SEL_ID_BOOL);
     private final MethodHandle MSG_ID_POINTER_LONG =
             NativeLibraries.downcall(OBJC, "objc_msgSend", Signatures.MSG_ID_POINTER_LONG);
     private final MethodHandle MSG_VOID_POINTER_LONG =
@@ -133,10 +132,14 @@ public class ObjC {
         return (int) PTHREAD_MAIN_NP.invokeExact() != 0;
     }
 
-    /** {@code dispatch_async_f} onto the main queue, serviced by whatever run loop the main thread is in. */
+    /**
+     * {@code performSelectorOnMainThread:withObject:waitUntilDone:NO}: a run loop source on the main thread, which
+     * fires from whatever loop that thread is in - the launcher's parked one, or a nested {@code -[NSApplication run]}.
+     */
     @SneakyThrows
-    public void dispatchToMainQueue(MemorySegment function, MemorySegment context) {
-        DISPATCH_ASYNC_F.invokeExact(MAIN_QUEUE, context, function);
+    public void performOnMainThread(MemorySegment receiver, String selector) {
+        MSG_VOID_SEL_ID_BOOL.invokeExact(receiver, sel("performSelectorOnMainThread:withObject:waitUntilDone:"),
+                sel(selector), MemorySegment.NULL, false);
     }
 
     /**
