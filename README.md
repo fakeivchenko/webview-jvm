@@ -59,7 +59,7 @@ dev-server workflow are covered in the **[usage guide](docs/usage.md)**.
 | OS              | Architecture  | Engine                | Module                | JVM | Native image | Tested on                             |
 |-----------------|---------------|-----------------------|-----------------------|:---:|:------------:|---------------------------------------|
 | Linux           | x86_64        | GTK 3 + WebKitGTK 4.1 | `webview-jvm-gtk`     | ✅  |      ✅      | Ubuntu 24.04 (CI), Arch-based desktop |
-| Linux           | aarch64       | GTK 3 + WebKitGTK 4.1 | `webview-jvm-gtk`     | ✅¹ |     ✅¹      | -                                     |
+| Linux           | aarch64       | GTK 3 + WebKitGTK 4.1 | `webview-jvm-gtk`     | ✅  |      ✅      | Ubuntu 24.04 (CI)                     |
 | FreeBSD         | x86_64        | GTK 3 + WebKitGTK 4.1 | `webview-jvm-gtk`     | ✅¹ |      -       | -                                     |
 | Windows 10 / 11 | x86_64        | Win32 + WebView2      | `webview-jvm-windows` | ✅  |      ✅      | Windows 11, Windows Server (CI)       |
 | Windows 11      | ARM64         | Win32 + WebView2      | `webview-jvm-windows` | ✅¹ |     ❌²      | -                                     |

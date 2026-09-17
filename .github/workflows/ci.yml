@@ -22,8 +22,16 @@ env:
 
 jobs:
   test:
-    name: Tests (Linux)
-    runs-on: ubuntu-latest
+    name: Tests (Linux ${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            arch: x86_64
+          - runner: ubuntu-24.04-arm
+            arch: arm64
     steps:
       - uses: actions/checkout@v7
 
@@ -50,7 +58,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: screenshots-linux
+          name: screenshots-linux-${{ matrix.arch }}
           path: '**/build/screenshots/'
           if-no-files-found: error
 
@@ -61,7 +69,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v7
         with:
-          name: test-reports-linux
+          name: test-reports-linux-${{ matrix.arch }}
           path: |
             **/build/reports/tests/
             **/build/test-results/
@@ -195,9 +203,17 @@ jobs:
           test "$gradle_version" = "$PROJECT_VERSION"
 
   native-linux:
-    name: Native image (Linux)
-    runs-on: ubuntu-latest
+    name: Native image (Linux ${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
     needs: version
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            arch: x86_64
+          - runner: ubuntu-24.04-arm
+            arch: arm64
     steps:
       - uses: actions/checkout@v7
 
@@ -210,8 +226,8 @@ jobs:
           file: Dockerfile.native
           outputs: type=local,dest=build/native-docker
           build-args: PROJECT_VERSION=${{ needs.version.outputs.version }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=native-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=native-${{ matrix.arch }}
 
       - name: Install runtime libraries and Xvfb
         run: |
@@ -221,12 +237,12 @@ jobs:
       - name: Smoke test the binary
         run: xvfb-run -a scripts/native-smoke.sh build/native-docker/webview-jvm-example
 
-      - run: mv build/native-docker/webview-jvm-example webview-jvm-example-linux-x86_64
+      - run: mv build/native-docker/webview-jvm-example webview-jvm-example-linux-${{ matrix.arch }}
 
       - uses: actions/upload-artifact@v7
         with:
-          name: webview-jvm-example-linux-x86_64
-          path: webview-jvm-example-linux-x86_64
+          name: webview-jvm-example-linux-${{ matrix.arch }}
+          path: webview-jvm-example-linux-${{ matrix.arch }}
 
   native-windows:
     name: Native image (Windows)
