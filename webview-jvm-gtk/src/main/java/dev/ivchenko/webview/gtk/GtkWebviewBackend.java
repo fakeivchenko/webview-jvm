@@ -117,6 +117,11 @@ public class GtkWebviewBackend extends AbstractWebviewBackend {
     }
 
     @Override
+    public String engine() {
+        return "WebKitGTK " + WebKit.version();
+    }
+
+    @Override
     public String title() {
         return this.dispatcher().call(() -> Gtk.windowGetTitle(this.window()));
     }
@@ -239,9 +244,9 @@ public class GtkWebviewBackend extends AbstractWebviewBackend {
         this.markClosed();
     }
 
-    @SuppressWarnings({"unused", "resource"})
     // --- signal handlers, bound by name from the upcall stubs above; signatures are GTK's ---
 
+    @SuppressWarnings({"unused", "resource"})
     private static void onDestroy(MemorySegment widget, MemorySegment userData) {
         try {
             GtkWebviewBackend backend = WINDOWS.unregister(userData);

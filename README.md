@@ -64,9 +64,13 @@ dev-server workflow are covered in the **[usage guide](docs/usage.md)**.
 | Windows 10 / 11 | x86_64        | Win32 + WebView2      | `webview-jvm-windows` | ✅  |      ✅      | Windows 11, Windows Server (CI)       |
 | Windows 11      | ARM64         | Win32 + WebView2      | `webview-jvm-windows` | ✅¹ |     ❌²      | -                                     |
 | macOS           | x86_64, arm64 | WKWebView             | `webview-jvm-macos`   | 🚧  |      🚧      | -                                     |
+| any of the above | any          | installed Chrome / Chromium / Edge | `webview-jvm-chrome` | 🧪 | 🧪 | Linux (Chromium), Windows 11 (Edge) |
 
 ✅ working and covered by CI · ✅¹ expected to work, not yet tested · ❌² no GraalVM `native-image`
-for Windows ARM64 · 🚧 in progress, see the [roadmap](#roadmap)
+for Windows ARM64 · 🚧 in progress · 🧪 **experimental** fallback: used only when no native engine is
+present (or when asked for with `-Dwebview.backend=chromium`), drives a browser the machine already
+has over the DevTools protocol; looks and behaves like the native backends, but the window appears
+as soon as it is created and `resizable(false)` is not enforced
 
 ## Requirements
 
@@ -87,6 +91,10 @@ dependencies {
     implementation("dev.ivchenko.webview:webview-jvm-core:<version>")
     runtimeOnly("dev.ivchenko.webview:webview-jvm-gtk:<version>")
     runtimeOnly("dev.ivchenko.webview:webview-jvm-windows:<version>")
+
+    // optional, experimental: fall back to an installed Chrome/Chromium/Edge when the native engine is missing
+    runtimeOnly("dev.ivchenko.webview:webview-jvm-chrome:<version>")
+    runtimeOnly("org.eclipse.parsson:parsson:1.1.9")
 }
 ```
 

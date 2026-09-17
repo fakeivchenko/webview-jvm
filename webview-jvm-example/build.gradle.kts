@@ -23,6 +23,8 @@ dependencies {
     implementation(project(":webview-jvm-core"))
     runtimeOnly(project(":webview-jvm-gtk"))
     runtimeOnly(project(":webview-jvm-windows"))
+    runtimeOnly(project(":webview-jvm-chrome"))
+    runtimeOnly("org.eclipse.parsson:parsson:1.1.9")
 
     // Logging: slf4j-simple has no XML configuration, so no JAXP ends up in the native image
     implementation("org.slf4j:slf4j-api:2.0.17")
