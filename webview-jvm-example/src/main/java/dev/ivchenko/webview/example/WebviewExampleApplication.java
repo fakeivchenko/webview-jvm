@@ -44,25 +44,30 @@ public class WebviewExampleApplication {
     /** Opens the window and blocks until it is closed. */
     @SuppressWarnings("unused")
     static void main(String[] args) {
-        WebviewParameters parameters = WebviewParameters.builder()
-                .title("webview-jvm example")
-                .width(960)
-                .height(720)
-                .build();
-
-        try (WebviewBackend webview = Webview.create(parameters)) {
-            webview.onLoad(WebviewExampleApplication::logLoad);
-
-            // Bind before loading: handlers are injected into every document as it starts.
-            webview.bind("systemInfo", _ -> systemInfo(webview));
-            webview.bind("sha256", WebviewExampleApplication::sha256);
-
-            webview.loadResource(PAGE);
+        try (WebviewBackend webview = open()) {
             pushHeapUsageWhileOpen(webview);
         } catch (BackendNotAvailableException e) {
             log.error("{}", e.getMessage());
         }
         log.info("Window closed, exiting");
+    }
+
+    /** The example window with its handlers bound and its page loading; the caller shows and runs it. */
+    static WebviewBackend open() {
+        WebviewParameters parameters = WebviewParameters.builder()
+                .title("webview-jvm example")
+                .width(960)
+                .height(720)
+                .build();
+        WebviewBackend webview = Webview.create(parameters);
+        webview.onLoad(WebviewExampleApplication::logLoad);
+
+        // Bind before loading: handlers are injected into every document as it starts.
+        webview.bind("systemInfo", _ -> systemInfo(webview));
+        webview.bind("sha256", WebviewExampleApplication::sha256);
+
+        webview.loadResource(PAGE);
+        return webview;
     }
 
     /**

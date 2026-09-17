@@ -38,6 +38,11 @@ public class Screenshots {
     @SneakyThrows
     public static void capture(String name) {
         if (!ENABLED) return;
+        if (PlatformUtil.isLinux() && System.getenv("WAYLAND_DISPLAY") != null) {
+            // Robot would go through the desktop portal, which asks the user on every capture; CI runs on Xvfb.
+            System.err.println("Screenshot '" + name + "' skipped: no capture on Wayland");
+            return;
+        }
 
         Thread.sleep(PAINT_DELAY_MILLIS);
         Files.createDirectories(DIRECTORY);
