@@ -5,6 +5,11 @@ on:
     branches: [dev, release]
   pull_request:
   workflow_dispatch:
+    inputs:
+      native:
+        description: Also build and smoke-test the native binaries
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -136,11 +141,11 @@ jobs:
             **/build/reports/tests/
             **/build/test-results/
 
-  # Everything below runs only for the release branch.
+  # Everything below runs only for the release branch, or on request.
 
   version:
     name: Version
-    if: github.ref == 'refs/heads/release'
+    if: github.ref == 'refs/heads/release' || inputs.native
     runs-on: ubuntu-latest
     needs: [test, test-windows, test-macos]
     outputs:
@@ -296,6 +301,7 @@ jobs:
 
   publish:
     name: Publish
+    if: github.ref == 'refs/heads/release'
     runs-on: ubuntu-latest
     needs: [version, native-linux, native-windows, native-macos]
     env:
