@@ -2,6 +2,7 @@ package dev.ivchenko.webview.chrome;
 
 import dev.ivchenko.webview.spi.WebviewBackendProvider;
 import dev.ivchenko.webview.testing.contract.BackendSelectionContractTest;
+import dev.ivchenko.webview.util.PlatformUtil;
 
 class ChromeBackendSelectionTest extends BackendSelectionContractTest {
     @Override
@@ -16,6 +17,6 @@ class ChromeBackendSelectionTest extends BackendSelectionContractTest {
 
     @Override
     protected boolean isThisPlatform() {
-        return ChromeLocator.find().isPresent();
+        return !PlatformUtil.isMacOs() && ChromeLocator.find().isPresent();
     }
 }
