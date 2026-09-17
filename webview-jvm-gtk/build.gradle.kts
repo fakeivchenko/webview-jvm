@@ -49,6 +49,9 @@ val displayTest = tasks.register<Test>("displayTest") {
     systemProperty("webview.requireDisplay", System.getProperty("webview.requireDisplay", "false"))
     systemProperty("webview.screenshots", System.getProperty("webview.screenshots", "false"))
     systemProperty("webview.screenshotsDir", layout.buildDirectory.dir("screenshots").get().asFile.absolutePath)
+    // A window test proves the machine it runs on, so a cached result from another machine proves nothing.
+    outputs.cacheIf { false }
+    outputs.upToDateWhen { false }
     configureWebviewTest()
     shouldRunAfter(tasks.test)
 }
@@ -64,6 +67,9 @@ val networkTest = tasks.register<Test>("networkTest") {
     systemProperty("webview.requireDisplay", System.getProperty("webview.requireDisplay", "false"))
     systemProperty("webview.screenshots", System.getProperty("webview.screenshots", "false"))
     systemProperty("webview.screenshotsDir", layout.buildDirectory.dir("screenshots").get().asFile.absolutePath)
+    // A window test proves the machine it runs on, so a cached result from another machine proves nothing.
+    outputs.cacheIf { false }
+    outputs.upToDateWhen { false }
     configureWebviewTest()
     shouldRunAfter(displayTest)
 }
