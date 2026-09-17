@@ -49,9 +49,9 @@ done
 echo "--- application ---"; cat "$workdir/app.log"
 echo "--- page reported ---"; grep -oE 'GET /(report|heap)[^ ]*' "$workdir/server.log" || true
 echo "--- server ---"; cat "$workdir/server.log"
-if ! grep -q 'GET /report' "$workdir/server.log" && [ -n "${logger:-}" ]; then
+if ! grep -q 'GET /heap' "$workdir/server.log" && [ -n "${logger:-}" ]; then
     sleep 2
-    echo "--- system log ---"; grep -E 'WebKit:(Loading|Network|Process|Sandbox)|Networking|didFail|Error| E  ' "$workdir/system.log" | grep -v 'appintents\|linkd' | tail -120
+    echo "--- system log ---"; grep -E 'WebKit|Networking| E  ' "$workdir/system.log" | grep -vE 'Sandbox|appintents|linkd|DisplayLink|Layer|ActivityState' | tail -150
 fi
 
 expected_hash=$(printf 'webview-jvm' | sha256sum | cut -d' ' -f1)
