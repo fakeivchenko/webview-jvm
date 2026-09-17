@@ -30,6 +30,14 @@ public class AppKit {
         return application;
     }
 
+    /**
+     * {@code -[NSApplication finishLaunching]}: what {@code run} does first. Called ahead of it when windows are created
+     * before the loop starts, because WebKit brings its helper processes up only in an application that has launched.
+     */
+    public void finishLaunching() {
+        ObjC.sendVoid(application(), "finishLaunching");
+    }
+
     /** {@code -[NSApplication run]}; returns only after {@link #stopRunLoop}. */
     public void run() {
         ObjC.sendVoid(application(), "run");

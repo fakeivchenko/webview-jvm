@@ -86,7 +86,10 @@ public class MacDispatcher extends UiDispatcher {
         if (this.started) return;
         this.started = true;
         if (this.isDispatchThread()) {
-            this.execute(AppKit::application);
+            this.execute(() -> {
+                AppKit.finishLaunching();
+                return null;
+            });
             return;
         }
         this.post(AppKit::application);
