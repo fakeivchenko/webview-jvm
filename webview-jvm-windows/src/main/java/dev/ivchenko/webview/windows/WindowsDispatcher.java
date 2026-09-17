@@ -17,7 +17,7 @@ import java.lang.foreign.MemorySegment;
  * {@code GetMessage}/{@code DispatchMessage} for the rest of the process, and drains queued tasks whenever a
  * {@code WM_APP} posted from another thread lands in its queue.</p>
  */
-public final class WindowsDispatcher extends UiDispatcher {
+public class WindowsDispatcher extends UiDispatcher {
     private static final WindowsDispatcher INSTANCE = new WindowsDispatcher();
 
     private volatile int threadId;

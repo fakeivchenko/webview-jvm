@@ -45,7 +45,7 @@ import java.util.concurrent.TimeUnit;
  * requests to that host are intercepted before they reach the network and answered from the jar, and {@code .localhost}
  * is a secure context in Chromium.</p>
  */
-public final class WindowsWebviewBackend extends AbstractWebviewBackend {
+public class WindowsWebviewBackend extends AbstractWebviewBackend {
     private static final String WINDOW_CLASS = "webview-jvm";
     private static final String RESOURCE_ORIGIN = "http://app.localhost/";
     private static final long CREATION_TIMEOUT_SECONDS = 60;

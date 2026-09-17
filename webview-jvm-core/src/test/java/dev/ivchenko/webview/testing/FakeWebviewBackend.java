@@ -12,7 +12,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * An {@link AbstractWebviewBackend} that records what the base class asks of it. Every script the base class evaluates
  * or injects, and every URL it navigates to, is kept for assertions.
  */
-public final class FakeWebviewBackend extends AbstractWebviewBackend {
+public class FakeWebviewBackend extends AbstractWebviewBackend {
     public final List<String> injected = new CopyOnWriteArrayList<>();
     public final List<String> evaluated = new CopyOnWriteArrayList<>();
     public final List<String> navigated = new CopyOnWriteArrayList<>();

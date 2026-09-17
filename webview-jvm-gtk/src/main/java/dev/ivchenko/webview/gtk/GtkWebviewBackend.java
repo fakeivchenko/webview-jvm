@@ -30,7 +30,7 @@ import java.util.concurrent.CompletableFuture;
  * are static and dispatch through {@link CallbackRegistry}, so a single upcall stub serves every window instead of one
  * stub per instance.</p>
  */
-public final class GtkWebviewBackend extends AbstractWebviewBackend {
+public class GtkWebviewBackend extends AbstractWebviewBackend {
     private static final CallbackRegistry<GtkWebviewBackend> WINDOWS = new CallbackRegistry<>();
     private static final CallbackRegistry<CompletableFuture<String>> PENDING_EVALUATIONS = new CallbackRegistry<>();
 

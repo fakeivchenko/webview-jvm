@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * A throwaway HTTP server on {@code 127.0.0.1}, so a test can load a real {@code http://} page without depending on
  * anything outside the machine.
  */
-public final class LocalPages implements AutoCloseable {
+public class LocalPages implements AutoCloseable {
     private final HttpServer server;
     private final Map<String, String> pages = new ConcurrentHashMap<>();
 

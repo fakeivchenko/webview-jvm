@@ -12,7 +12,7 @@ import dev.ivchenko.webview.spi.WebviewBackendProvider;
  * <p>Discovered through {@code META-INF/services}, so simply having this jar on the classpath is what makes the backend
  * available on Linux and the BSDs.</p>
  */
-public final class GtkWebviewBackendProvider implements WebviewBackendProvider {
+public class GtkWebviewBackendProvider implements WebviewBackendProvider {
     @Override
     public String name() {
         return "gtk3-webkit2gtk-4.1";

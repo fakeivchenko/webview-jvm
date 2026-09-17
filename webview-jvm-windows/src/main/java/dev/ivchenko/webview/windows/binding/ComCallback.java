@@ -24,7 +24,7 @@ import java.lang.invoke.VarHandle;
  * view is closed; when the count reaches zero the entry is dropped and the memory, in an automatic arena, is freed once
  * unreachable.</p>
  */
-public final class ComCallback {
+public class ComCallback {
     /**
      * {@code HRESULT Invoke(HRESULT errorCode, T* result)}. The Java side never has a reason to fail the call, so the
      * handler returns nothing and the stub always answers {@code S_OK}.

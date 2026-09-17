@@ -19,7 +19,7 @@ import javax.imageio.ImageIO;
  * real desktop the surroundings help explain a failure. {@code java.awt.Robot} needs nothing beyond the X libraries
  * WebKitGTK already pulls in, plus {@code libXtst}.</p>
  */
-public final class Screenshots {
+public class Screenshots {
     private static final boolean ENABLED = Boolean.getBoolean("webview.screenshots");
     private static final Path DIRECTORY = Path.of(System.getProperty("webview.screenshotsDir", "build/screenshots"));
     private static final long PAINT_DELAY_MILLIS = 500;

@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * @param <T> the type the callbacks dispatch to
  */
-public final class CallbackRegistry<T> {
+public class CallbackRegistry<T> {
     private final Map<Long, T> entries = new ConcurrentHashMap<>();
     private final AtomicLong ids = new AtomicLong();
 

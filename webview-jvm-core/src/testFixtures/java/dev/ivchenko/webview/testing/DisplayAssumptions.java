@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Assumptions;
  * take that shortcut: a skipped display test there is a false pass, so with {@code -Dwebview.requireDisplay=true} the
  * missing display is a failure instead.</p>
  */
-public final class DisplayAssumptions {
+public class DisplayAssumptions {
     public static final String REQUIRE_DISPLAY_PROPERTY = "webview.requireDisplay";
 
     private DisplayAssumptions() {
