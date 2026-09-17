@@ -20,14 +20,14 @@ jobs:
     name: Tests (Linux)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: 25
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
 
       - name: Install GTK, WebKitGTK and Xvfb
         run: |
@@ -43,7 +43,7 @@ jobs:
 
       - name: Screenshots
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: screenshots-linux
           path: '**/build/screenshots/'
@@ -54,7 +54,7 @@ jobs:
 
       - name: Test reports
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-reports-linux
           path: |
@@ -65,14 +65,14 @@ jobs:
     name: Tests (Windows)
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: 25
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
 
       - name: Headless tests
         run: ./gradlew test
@@ -83,7 +83,7 @@ jobs:
 
       - name: Screenshots
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: screenshots-windows
           path: '**/build/screenshots/'
@@ -91,7 +91,7 @@ jobs:
 
       - name: Test reports
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-reports-windows
           path: |
@@ -110,16 +110,16 @@ jobs:
       version_tag: ${{ steps.semver.outputs.version_tag }}
       is_tagged: ${{ steps.semver.outputs.is_tagged }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: 25
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
 
       - name: Calculate semantic version
         id: semver
@@ -149,12 +149,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: version
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v4
 
       - name: Build native binary in container
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: Dockerfile.native
@@ -173,7 +173,7 @@ jobs:
 
       - run: mv build/native-docker/webview-jvm-example webview-jvm-example-linux-x86_64
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: webview-jvm-example-linux-x86_64
           path: webview-jvm-example-linux-x86_64
@@ -183,7 +183,7 @@ jobs:
     runs-on: windows-latest
     needs: version
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # Also puts the Visual Studio toolchain native-image needs on the PATH.
       - uses: graalvm/setup-graalvm@v1
@@ -191,7 +191,7 @@ jobs:
           java-version: 25
           distribution: graalvm-community
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
 
       - name: Build native binary
         run: ./gradlew :webview-jvm-example:nativeCompile "-PprojectVersion=${{ needs.version.outputs.version }}"
@@ -203,7 +203,7 @@ jobs:
       - shell: bash
         run: mv webview-jvm-example/build/native/nativeCompile/webview-jvm-example.exe webview-jvm-example-windows-x86_64.exe
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: webview-jvm-example-windows-x86_64
           path: webview-jvm-example-windows-x86_64.exe
@@ -215,14 +215,14 @@ jobs:
     env:
       PROJECT_VERSION: ${{ needs.version.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: 25
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
 
       - name: Publish to the Maven repository
         env:
@@ -230,7 +230,7 @@ jobs:
           REPOSILITE_PASSWORD: ${{ secrets.REPOSILITE_PASSWORD }}
         run: ./gradlew publish -PprojectVersion="$PROJECT_VERSION"
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: webview-jvm-example-*
           merge-multiple: true
@@ -240,7 +240,7 @@ jobs:
       # the released commit touches .github/workflows/*.
       - name: Tag and GitHub release with the example binaries
         if: needs.version.outputs.is_tagged != 'true'
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.version.outputs.version_tag }}
           target_commitish: ${{ github.sha }}
