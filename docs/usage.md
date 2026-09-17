@@ -99,4 +99,5 @@ The value also comes from `-Dwebview.devServerUrl=…` or from
 the platform, or - when its engine is missing and the experimental `webview-jvm-chrome` is on the classpath -
 an installed Chrome, Chromium or Edge. `-Dwebview.backend=<name>` or `WEBVIEW_BACKEND` names one
 explicitly (`gtk3-webkit2gtk-4.1`, `win32-webview2`, `cocoa-wkwebview`, `chromium`); `-Dwebview.chrome=<path>`
-or `WEBVIEW_CHROME` points the Chrome backend at a particular executable.
+or `WEBVIEW_CHROME` points the Chrome backend at a particular executable, and `-Dwebview.chrome.args` /
+`WEBVIEW_CHROME_ARGS` adds command line switches to it (for example `--no-proxy-server`).

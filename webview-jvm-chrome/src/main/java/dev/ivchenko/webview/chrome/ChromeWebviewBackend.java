@@ -153,11 +153,11 @@ public class ChromeWebviewBackend extends AbstractWebviewBackend {
         this.checkOpen();
         this.committed = false;
         this.dispatcher().run(() -> this.emitLoad(LoadEvent.of(LoadState.STARTED, url)));
-        String errorText = this.devTools.call("Page.navigate", DevToolsClient.params().add("url", url))
-                .getString("errorText", null);
-        if (errorText != null) {
-            this.dispatcher().post(() -> this.emitLoad(LoadEvent.failed(url, errorText)));
-        }
+        // Answered only once the navigation has committed or failed, which can take as long as the network does.
+        this.devTools.send("Page.navigate", DevToolsClient.params().add("url", url)).thenAccept(result -> {
+            String errorText = result.getString("errorText", null);
+            if (errorText != null) this.dispatcher().post(() -> this.emitLoad(LoadEvent.failed(url, errorText)));
+        });
     }
 
     @Override

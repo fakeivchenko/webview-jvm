@@ -39,6 +39,8 @@ tasks.test {
         excludeTags("display", "network")
     }
     systemProperty("webview.backend", "chromium")
+    // Proxy auto-detection on a fresh profile can stall the first request for half a minute on a CI runner.
+    systemProperty("webview.chrome.args", "--no-proxy-server")
     configureWebviewTest()
 }
 
@@ -52,6 +54,8 @@ val displayTest = tasks.register<Test>("displayTest") {
         excludeTags("network")
     }
     systemProperty("webview.backend", "chromium")
+    // Proxy auto-detection on a fresh profile can stall the first request for half a minute on a CI runner.
+    systemProperty("webview.chrome.args", "--no-proxy-server")
     systemProperty("webview.requireDisplay", System.getProperty("webview.requireDisplay", "false"))
     systemProperty("webview.screenshots", System.getProperty("webview.screenshots", "false"))
     systemProperty("webview.screenshotsDir", layout.buildDirectory.dir("screenshots").get().asFile.absolutePath)
@@ -71,6 +75,8 @@ val networkTest = tasks.register<Test>("networkTest") {
         includeTags("network")
     }
     systemProperty("webview.backend", "chromium")
+    // Proxy auto-detection on a fresh profile can stall the first request for half a minute on a CI runner.
+    systemProperty("webview.chrome.args", "--no-proxy-server")
     systemProperty("webview.requireDisplay", System.getProperty("webview.requireDisplay", "false"))
     systemProperty("webview.screenshots", System.getProperty("webview.screenshots", "false"))
     systemProperty("webview.screenshotsDir", layout.buildDirectory.dir("screenshots").get().asFile.absolutePath)

@@ -20,9 +20,16 @@ import java.util.stream.Stream;
  *
  * <p>Every window gets its own throw-away profile so the user's real browser state (sessions, extensions, sync) never
  * leaks in and nothing of the application is left behind. The DevTools port is picked by the browser and read back
- * from the {@code DevToolsActivePort} file it writes into that profile.</p>
+ * from the {@code DevToolsActivePort} file it writes into that profile. {@code -Dwebview.chrome.args} or
+ * {@code WEBVIEW_CHROME_ARGS} appends further command line switches, space separated.</p>
  */
 class ChromeProcess implements AutoCloseable {
+    /** System property with extra command line switches for the browser. */
+    public static final String ARGS_PROPERTY = "webview.chrome.args";
+
+    /** Environment variable with the same meaning as {@link #ARGS_PROPERTY}. */
+    public static final String ARGS_VARIABLE = "WEBVIEW_CHROME_ARGS";
+
     private static final Duration STARTUP_TIMEOUT = Duration.ofSeconds(30);
     private static final Duration EXIT_TIMEOUT = Duration.ofSeconds(5);
 
@@ -57,6 +64,8 @@ class ChromeProcess implements AutoCloseable {
                 "--use-mock-keychain",
                 "--hide-crash-restore-bubble",
                 "--no-service-autorun"));
+        String extra = System.getProperty(ARGS_PROPERTY, System.getenv(ARGS_VARIABLE));
+        if (extra != null && !extra.isBlank()) command.addAll(List.of(extra.strip().split("\\s+")));
         Process process = new ProcessBuilder(command)
                 .redirectErrorStream(true)
                 .redirectOutput(ProcessBuilder.Redirect.DISCARD)
