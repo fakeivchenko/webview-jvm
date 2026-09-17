@@ -52,7 +52,7 @@ echo "--- server ---"; cat "$workdir/server.log"
 if [ -n "${logger:-}" ]; then
     sleep 2
     echo "--- system log ---"; grep -E 'WebKit:(Loading|Process|Network|ProcessSuspension)|Networking|RunningBoard| E  ' "$workdir/system.log" \
-        | grep -vE 'Sandbox|appintents|linkd|DisplayLink|Layer|ActivityState' | head -200
+        | grep -vE 'Sandbox|appintents|linkd|DisplayLink|Layer|ActivityState|xpc:connection|ProcessSuspension' | tail -120
 fi
 
 expected_hash=$(printf 'webview-jvm' | sha256sum | cut -d' ' -f1)
