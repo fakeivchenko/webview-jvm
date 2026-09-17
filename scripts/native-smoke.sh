@@ -27,7 +27,11 @@ window.onHeapUsage = (megabytes) => fetch(`/heap?mb=${megabytes}`);
 </script></body></html>
 HTML
 
-python3 -m http.server "$port" --bind 127.0.0.1 --directory "$workdir" > "$workdir/server.log" 2>&1 &
+# The system python on macOS: it is Apple-signed, so the application firewall lets it accept connections at once,
+# where an ad-hoc-signed interpreter is held back until the firewall decides - which is what a loopback connect that
+# times out for half a minute looks like.
+python=$( [ -x /usr/bin/python3 ] && echo /usr/bin/python3 || command -v python3 )
+"$python" -m http.server "$port" --bind 127.0.0.1 --directory "$workdir" > "$workdir/server.log" 2>&1 &
 server=$!
 sleep 1
 
