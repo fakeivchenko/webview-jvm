@@ -23,6 +23,7 @@ dependencies {
     implementation(project(":webview-jvm-core"))
     runtimeOnly(project(":webview-jvm-gtk"))
     runtimeOnly(project(":webview-jvm-windows"))
+    runtimeOnly(project(":webview-jvm-macos"))
     runtimeOnly(project(":webview-jvm-chrome"))
     runtimeOnly("org.eclipse.parsson:parsson:1.1.9")
 
@@ -32,6 +33,7 @@ dependencies {
 }
 
 val windows = org.gradle.internal.os.OperatingSystem.current().isWindows
+val macOs = org.gradle.internal.os.OperatingSystem.current().isMacOsX
 
 val windowsResources = tasks.register<Exec>("windowsResources") {
     description = "Compiles src/main/windows/app.rc into the .res linked into the native executable."
@@ -64,6 +66,14 @@ graalvmNative {
                         "-H:NativeLinkerOption=" + layout.buildDirectory.file("windows/app.res").get().asFile.absolutePath,
                         "-H:NativeLinkerOption=/SUBSYSTEM:WINDOWS",
                         "-H:NativeLinkerOption=/ENTRY:mainCRTStartup",
+                        "-H:-UnlockExperimentalVMOptions")
+            }
+            if (macOs) {
+                // An Info.plist embedded the way the java launcher embeds its own: WebKit's helper processes need the
+                // bundle identifier, and the menu bar and Dock show the name.
+                buildArgs("-H:+UnlockExperimentalVMOptions",
+                        "-H:NativeLinkerOption=-Wl,-sectcreate,__TEXT,__info_plist,"
+                                + layout.projectDirectory.file("src/main/macos/Info.plist").asFile.absolutePath,
                         "-H:-UnlockExperimentalVMOptions")
             }
         }

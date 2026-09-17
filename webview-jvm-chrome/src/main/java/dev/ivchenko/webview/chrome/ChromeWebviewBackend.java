@@ -55,6 +55,7 @@ public class ChromeWebviewBackend extends AbstractWebviewBackend {
 
     private volatile String title;
     private volatile String url = "about:blank";
+    private volatile boolean committed;
     private volatile boolean resizable = true;
     private volatile String titleScriptId;
 
@@ -128,7 +129,10 @@ public class ChromeWebviewBackend extends AbstractWebviewBackend {
         this.checkOpen();
         this.devTools.call("Browser.setWindowBounds", DevToolsClient.params()
                 .add("windowId", this.windowId)
-                .add("bounds", DevToolsClient.params().add("width", width).add("height", height)));
+                .add("bounds", DevToolsClient.params()
+                        .add("windowState", "normal")
+                        .add("width", width)
+                        .add("height", height)));
     }
 
     @Override
@@ -147,6 +151,7 @@ public class ChromeWebviewBackend extends AbstractWebviewBackend {
     public void navigate(String url) {
         Objects.requireNonNull(url, "url");
         this.checkOpen();
+        this.committed = false;
         this.dispatcher().run(() -> this.emitLoad(LoadEvent.of(LoadState.STARTED, url)));
         String errorText = this.devTools.call("Page.navigate", DevToolsClient.params().add("url", url))
                 .getString("errorText", null);
@@ -230,12 +235,17 @@ public class ChromeWebviewBackend extends AbstractWebviewBackend {
         this.devTools.on("Page.frameNavigated", params -> {
             JsonObject frame = params.getJsonObject("frame");
             if (frame.containsKey("parentId") || !frame.containsKey("url")) return;
-            String committed = frame.getString("url");
-            this.url = committed;
-            this.dispatcher().post(() -> this.emitLoad(LoadEvent.of(LoadState.COMMITTED, committed)));
+            String navigated = frame.getString("url");
+            this.url = navigated;
+            this.committed = true;
+            this.dispatcher().post(() -> this.emitLoad(LoadEvent.of(LoadState.COMMITTED, navigated)));
         });
-        this.devTools.on("Page.loadEventFired",
-                _ -> this.dispatcher().post(() -> this.emitLoad(LoadEvent.of(LoadState.FINISHED, this.url))));
+        // The load event of the document being replaced can still arrive after navigate(); only a committed
+        // navigation's load event is the one the caller is waiting for.
+        this.devTools.on("Page.loadEventFired", _ -> {
+            if (!this.committed) return;
+            this.dispatcher().post(() -> this.emitLoad(LoadEvent.of(LoadState.FINISHED, this.url)));
+        });
         this.devTools.on("Runtime.bindingCalled", params -> {
             if (!BRIDGE_BINDING.equals(params.getString("name", null))) return;
             String message = params.getString("payload", "");

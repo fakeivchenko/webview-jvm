@@ -10,7 +10,7 @@ set -euo pipefail
 binary=${1:?usage: native-smoke.sh <binary>}
 port=${PORT:-5199}
 workdir=$(mktemp -d)
-trap 'kill "${app:-}" "${server:-}" 2>/dev/null || true; rm -rf "$workdir"' EXIT
+trap 'kill "${app:-}" "${server:-}" "${logger:-}" 2>/dev/null || true; rm -rf "$workdir"' EXIT
 
 cat > "$workdir/index.html" <<'HTML'
 <!DOCTYPE html><html><body><script>
@@ -27,9 +27,20 @@ window.onHeapUsage = (megabytes) => fetch(`/heap?mb=${megabytes}`);
 </script></body></html>
 HTML
 
-python3 -m http.server "$port" --bind 127.0.0.1 --directory "$workdir" > "$workdir/server.log" 2>&1 &
+# The system python on macOS: it is Apple-signed, so the application firewall lets it accept connections at once,
+# where an ad-hoc-signed interpreter is held back until the firewall decides - which is what a loopback connect that
+# times out for half a minute looks like.
+python=$( [ -x /usr/bin/python3 ] && echo /usr/bin/python3 || command -v python3 )
+"$python" -m http.server "$port" --bind 127.0.0.1 --directory "$workdir" > "$workdir/server.log" 2>&1 &
 server=$!
 sleep 1
+
+if command -v log >/dev/null && [ "$(uname)" = Darwin ]; then
+    log stream --style compact --predicate 'process CONTAINS "webview-jvm-example" OR process CONTAINS "com.apple.WebKit"' \
+        > "$workdir/system.log" 2>&1 &
+    logger=$!
+    sleep 2
+fi
 
 WEBVIEW_DEV_SERVER_URL="http://127.0.0.1:$port" "$binary" > "$workdir/app.log" 2>&1 &
 app=$!
@@ -41,9 +52,15 @@ done
 
 echo "--- application ---"; cat "$workdir/app.log"
 echo "--- page reported ---"; grep -oE 'GET /(report|heap)[^ ]*' "$workdir/server.log" || true
+echo "--- server ---"; cat "$workdir/server.log"
+if [ -n "${logger:-}" ]; then
+    sleep 2
+    echo "--- system log ---"; grep -E 'WebKit:(Loading|Process|Network|ProcessSuspension)|Networking|RunningBoard| E  ' "$workdir/system.log" \
+        | grep -vE 'Sandbox|appintents|linkd|DisplayLink|Layer|ActivityState|xpc:connection|ProcessSuspension' | tail -120
+fi
 
 expected_hash=$(printf 'webview-jvm' | sha256sum | cut -d' ' -f1)
-grep -qE "GET /report\?backend=(gtk3-webkit2gtk-4.1|win32-webview2|chromium)&hash=$expected_hash" "$workdir/server.log" \
+grep -qE "GET /report\?backend=(gtk3-webkit2gtk-4.1|win32-webview2|cocoa-wkwebview|chromium)&hash=$expected_hash" "$workdir/server.log" \
     || { echo "FAIL: page -> Java bridge did not answer correctly"; exit 1; }
 grep -q 'GET /heap?mb=' "$workdir/server.log" \
     || { echo "FAIL: Java -> page eval never arrived"; exit 1; }

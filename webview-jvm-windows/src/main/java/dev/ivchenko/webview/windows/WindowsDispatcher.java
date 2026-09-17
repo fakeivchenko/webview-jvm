@@ -1,6 +1,6 @@
 package dev.ivchenko.webview.windows;
 
-import dev.ivchenko.webview.ui.UiDispatcher;
+import dev.ivchenko.webview.ui.EventLoopDispatcher;
 import dev.ivchenko.webview.windows.binding.Kernel32;
 import dev.ivchenko.webview.windows.binding.Ole32;
 import dev.ivchenko.webview.windows.binding.Signatures;
@@ -17,7 +17,7 @@ import java.lang.foreign.MemorySegment;
  * {@code GetMessage}/{@code DispatchMessage} for the rest of the process, and drains queued tasks whenever a
  * {@code WM_APP} posted from another thread lands in its queue.</p>
  */
-public class WindowsDispatcher extends UiDispatcher {
+public class WindowsDispatcher extends EventLoopDispatcher {
     private static final WindowsDispatcher INSTANCE = new WindowsDispatcher();
 
     private volatile int threadId;

@@ -5,6 +5,11 @@ on:
     branches: [dev, release]
   pull_request:
   workflow_dispatch:
+    inputs:
+      native:
+        description: Also build and smoke-test the native binaries
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -17,8 +22,16 @@ env:
 
 jobs:
   test:
-    name: Tests (Linux)
-    runs-on: ubuntu-latest
+    name: Tests (Linux ${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            arch: x86_64
+          - runner: ubuntu-24.04-arm
+            arch: arm64
     steps:
       - uses: actions/checkout@v7
 
@@ -45,7 +58,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: screenshots-linux
+          name: screenshots-linux-${{ matrix.arch }}
           path: '**/build/screenshots/'
           if-no-files-found: error
 
@@ -56,7 +69,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v7
         with:
-          name: test-reports-linux
+          name: test-reports-linux-${{ matrix.arch }}
           path: |
             **/build/reports/tests/
             **/build/test-results/
@@ -98,13 +111,58 @@ jobs:
             **/build/reports/tests/
             **/build/test-results/
 
-  # Everything below runs only for the release branch.
+  test-macos:
+    name: Tests (macOS ${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-latest
+            arch: arm64
+          - runner: macos-15-intel
+            arch: x86_64
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 25
+
+      - uses: gradle/actions/setup-gradle@v6
+
+      - name: Headless tests
+        run: ./gradlew test
+
+      # The runner's session has a window server, so AppKit windows come up without any display setup.
+      - name: Display tests
+        run: ./gradlew displayTest -Dwebview.requireDisplay=true -Dwebview.screenshots=true
+
+      - name: Screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: screenshots-macos-${{ matrix.arch }}
+          path: '**/build/screenshots/'
+          if-no-files-found: error
+
+      - name: Test reports
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-reports-macos-${{ matrix.arch }}
+          path: |
+            **/build/reports/tests/
+            **/build/test-results/
+
+  # Everything below runs only for the release branch, or on request.
 
   version:
     name: Version
-    if: github.ref == 'refs/heads/release'
+    if: github.ref == 'refs/heads/release' || inputs.native
     runs-on: ubuntu-latest
-    needs: [test, test-windows]
+    needs: [test, test-windows, test-macos]
     outputs:
       version: ${{ steps.semver.outputs.version }}
       version_tag: ${{ steps.semver.outputs.version_tag }}
@@ -145,9 +203,17 @@ jobs:
           test "$gradle_version" = "$PROJECT_VERSION"
 
   native-linux:
-    name: Native image (Linux)
-    runs-on: ubuntu-latest
+    name: Native image (Linux ${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
     needs: version
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            arch: x86_64
+          - runner: ubuntu-24.04-arm
+            arch: arm64
     steps:
       - uses: actions/checkout@v7
 
@@ -160,8 +226,8 @@ jobs:
           file: Dockerfile.native
           outputs: type=local,dest=build/native-docker
           build-args: PROJECT_VERSION=${{ needs.version.outputs.version }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=native-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=native-${{ matrix.arch }}
 
       - name: Install runtime libraries and Xvfb
         run: |
@@ -171,12 +237,12 @@ jobs:
       - name: Smoke test the binary
         run: xvfb-run -a scripts/native-smoke.sh build/native-docker/webview-jvm-example
 
-      - run: mv build/native-docker/webview-jvm-example webview-jvm-example-linux-x86_64
+      - run: mv build/native-docker/webview-jvm-example webview-jvm-example-linux-${{ matrix.arch }}
 
       - uses: actions/upload-artifact@v7
         with:
-          name: webview-jvm-example-linux-x86_64
-          path: webview-jvm-example-linux-x86_64
+          name: webview-jvm-example-linux-${{ matrix.arch }}
+          path: webview-jvm-example-linux-${{ matrix.arch }}
 
   native-windows:
     name: Native image (Windows)
@@ -216,10 +282,51 @@ jobs:
           name: webview-jvm-example-windows-x86_64
           path: webview-jvm-example-windows-x86_64.exe
 
+  native-macos:
+    name: Native image (macOS ${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    needs: version
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-latest
+            arch: arm64
+          - runner: macos-15-intel
+            arch: x86_64
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: 25
+          distribution: graalvm-community
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 25
+
+      - uses: gradle/actions/setup-gradle@v6
+
+      - name: Build native binary
+        run: ./gradlew :webview-jvm-example:nativeCompile "-PprojectVersion=${{ needs.version.outputs.version }}"
+
+      - name: Smoke test the binary
+        run: scripts/native-smoke.sh webview-jvm-example/build/native/nativeCompile/webview-jvm-example
+
+      - run: mv webview-jvm-example/build/native/nativeCompile/webview-jvm-example webview-jvm-example-macos-${{ matrix.arch }}
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: webview-jvm-example-macos-${{ matrix.arch }}
+          path: webview-jvm-example-macos-${{ matrix.arch }}
+
   publish:
     name: Publish
+    if: github.ref == 'refs/heads/release'
     runs-on: ubuntu-latest
-    needs: [version, native-linux, native-windows]
+    needs: [version, native-linux, native-windows, native-macos]
     env:
       PROJECT_VERSION: ${{ needs.version.outputs.version }}
     steps:

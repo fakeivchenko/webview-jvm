@@ -1,22 +1,22 @@
-package dev.ivchenko.webview.chrome;
+package dev.ivchenko.webview.macos;
 
 import dev.ivchenko.webview.spi.WebviewBackendProvider;
 import dev.ivchenko.webview.testing.contract.BackendSelectionContractTest;
 import dev.ivchenko.webview.util.PlatformUtil;
 
-class ChromeBackendSelectionTest extends BackendSelectionContractTest {
+class MacBackendSelectionTest extends BackendSelectionContractTest {
     @Override
     protected Class<? extends WebviewBackendProvider> providerType() {
-        return ChromeWebviewBackendProvider.class;
+        return MacWebviewBackendProvider.class;
     }
 
     @Override
     protected String providerName() {
-        return ChromeWebviewBackendProvider.NAME;
+        return "cocoa-wkwebview";
     }
 
     @Override
     protected boolean isThisPlatform() {
-        return !PlatformUtil.isMacOs() && ChromeLocator.find().isPresent();
+        return PlatformUtil.isMacOs();
     }
 }

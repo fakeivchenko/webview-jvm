@@ -4,7 +4,7 @@ import dev.ivchenko.webview.foreign.NativeLibraries;
 import dev.ivchenko.webview.gtk.binding.GLib;
 import dev.ivchenko.webview.gtk.binding.Gtk;
 import dev.ivchenko.webview.gtk.binding.Signatures;
-import dev.ivchenko.webview.ui.UiDispatcher;
+import dev.ivchenko.webview.ui.EventLoopDispatcher;
 
 import java.lang.foreign.MemorySegment;
 import java.lang.invoke.MethodHandles;
@@ -17,10 +17,10 @@ import java.lang.invoke.MethodType;
  * sits in {@code gtk_main()} for the lifetime of the process. Work posted from other threads is pulled in through a
  * {@code g_idle_add} source - the one GLib entry point that is safe to call from anywhere.</p>
  */
-public class GtkDispatcher extends UiDispatcher {
+public class GtkDispatcher extends EventLoopDispatcher {
     private static final GtkDispatcher INSTANCE = new GtkDispatcher();
 
-    /** Shared {@code GSourceFunc} stub; the queue in {@link UiDispatcher} carries the work. */
+    /** Shared {@code GSourceFunc} stub; the queue in {@link EventLoopDispatcher} carries the work. */
     private static final MemorySegment DRAIN_STUB = NativeLibraries.upcall(
             MethodHandles.lookup(), GtkDispatcher.class, "drain",
             MethodType.methodType(int.class, MemorySegment.class), Signatures.G_SOURCE_FUNC);

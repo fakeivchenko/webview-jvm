@@ -14,7 +14,7 @@
 
 Build the UI with HTML, CSS and JavaScript, ship it inside the native executable or jar package, drive it from Java.
 The window is drawn by the web engine the operating system already has - WebKitGTK on Linux, WebView2 on
-Windows - so nothing is bundled and nothing is compiled. The whole application can be turned into
+Windows, WKWebView on macOS - so nothing is bundled and nothing is compiled. The whole application can be turned into
 a small self-contained binary with <a href="https://www.graalvm.org/jdk25/reference-manual/native-image/">GraalVM Native Image</a>.
 
 ## Simple example
@@ -45,8 +45,8 @@ dev-server workflow are covered in the **[usage guide](docs/usage.md)**.
   libraries, no compiler at build time.
 - **Small and fast as a native binary.** About 15 MB, starts in a few hundred milliseconds, runs
   in a few megabytes of heap. No JVM to install, no Chromium to bundle.
-- **One jar, every platform.** The same artifact runs on Linux and Windows; a backend for another
-  OS simply stays inert.
+- **One jar, every platform.** The same artifact runs on Linux, Windows and macOS; a backend for
+  another OS simply stays inert.
 - **A real bridge, both ways.** Call Java from the page and get a `Promise`; run scripts from Java
   and get a `CompletableFuture`. Handlers run on virtual threads and may block.
 - **Your frontend workflow.** Point it at a Vite/React/Vue dev server while developing - hot
@@ -59,15 +59,15 @@ dev-server workflow are covered in the **[usage guide](docs/usage.md)**.
 | OS              | Architecture  | Engine                | Module                | JVM | Native image | Tested on                             |
 |-----------------|---------------|-----------------------|-----------------------|:---:|:------------:|---------------------------------------|
 | Linux           | x86_64        | GTK 3 + WebKitGTK 4.1 | `webview-jvm-gtk`     | ✅  |      ✅      | Ubuntu 24.04 (CI), Arch-based desktop |
-| Linux           | aarch64       | GTK 3 + WebKitGTK 4.1 | `webview-jvm-gtk`     | ✅¹ |     ✅¹      | -                                     |
+| Linux           | aarch64       | GTK 3 + WebKitGTK 4.1 | `webview-jvm-gtk`     | ✅  |      ✅      | Ubuntu 24.04 (CI)                     |
 | FreeBSD         | x86_64        | GTK 3 + WebKitGTK 4.1 | `webview-jvm-gtk`     | ✅¹ |      -       | -                                     |
 | Windows 10 / 11 | x86_64        | Win32 + WebView2      | `webview-jvm-windows` | ✅  |      ✅      | Windows 11, Windows Server (CI)       |
 | Windows 11      | ARM64         | Win32 + WebView2      | `webview-jvm-windows` | ✅¹ |     ❌²      | -                                     |
-| macOS           | x86_64, arm64 | WKWebView             | `webview-jvm-macos`   | 🚧  |      🚧      | -                                     |
-| any of the above | any          | installed Chrome / Chromium / Edge | `webview-jvm-chrome` | 🧪 | 🧪 | Linux (Chromium), Windows 11 (Edge) |
+| macOS 12+       | x86_64, arm64 | Cocoa + WKWebView     | `webview-jvm-macos`   | ✅  |      ✅      | macOS 15 Intel and macOS 14 arm64 (CI) |
+| Linux, Windows  | any          | installed Chrome / Chromium / Edge | `webview-jvm-chrome` | 🧪 | 🧪 | Linux (Chromium), Windows 11 (Edge) |
 
 ✅ working and covered by CI · ✅¹ expected to work, not yet tested · ❌² no GraalVM `native-image`
-for Windows ARM64 · 🚧 in progress · 🧪 **experimental** fallback: used only when no native engine is
+for Windows ARM64 · 🧪 **experimental** fallback: used only when no native engine is
 present (or when asked for with `-Dwebview.backend=chromium`), drives a browser the machine already
 has over the DevTools protocol; looks and behaves like the native backends, but the window appears
 as soon as it is created and `resizable(false)` is not enforced
@@ -76,6 +76,9 @@ as soon as it is created and `resizable(false)` is not enforced
 
 - **Java 25.**
 - **Linux:** GTK 3 and WebKitGTK 4.1
+- **macOS:** nothing to install - AppKit and WebKit are part of the system. Under the JVM the
+  library uses the process main thread the `java` launcher keeps for AppKit; in a native image the
+  application's `main` is that thread, so call `run()` from it.
 - **Windows:** the WebView2 Runtime - present on Windows 11 and wherever Edge is installed;
   otherwise use [Microsoft's installer](https://developer.microsoft.com/microsoft-edge/webview2/).
 - The JVM flag `--enable-native-access=ALL-UNNAMED`.
@@ -91,6 +94,7 @@ dependencies {
     implementation("dev.ivchenko.webview:webview-jvm-core:<version>")
     runtimeOnly("dev.ivchenko.webview:webview-jvm-gtk:<version>")
     runtimeOnly("dev.ivchenko.webview:webview-jvm-windows:<version>")
+    runtimeOnly("dev.ivchenko.webview:webview-jvm-macos:<version>")
 
     // optional, experimental: fall back to an installed Chrome/Chromium/Edge when the native engine is missing
     runtimeOnly("dev.ivchenko.webview:webview-jvm-chrome:<version>")
