@@ -41,6 +41,10 @@ done
 
 echo "--- application ---"; cat "$workdir/app.log"
 echo "--- page reported ---"; grep -oE 'GET /(report|heap)[^ ]*' "$workdir/server.log" || true
+echo "--- server ---"; cat "$workdir/server.log"
+if ! grep -q 'GET /report' "$workdir/server.log" && command -v sample >/dev/null; then
+    echo "--- main thread sample ---"; sample "$app" 2 2>/dev/null | sed -n '/Call graph/,/Total number/p' | head -80
+fi
 
 expected_hash=$(printf 'webview-jvm' | sha256sum | cut -d' ' -f1)
 grep -qE "GET /report\?backend=(gtk3-webkit2gtk-4.1|win32-webview2|cocoa-wkwebview|chromium)&hash=$expected_hash" "$workdir/server.log" \
