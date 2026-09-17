@@ -127,10 +127,17 @@ jobs:
       - name: Headless tests
         run: ./gradlew test
 
-      # The runner's session has a window server, so AppKit windows come up without any display setup. No
-      # screenshots: AWT's Robot would bring a second NSApplication into a process that already runs one.
+      # The runner's session has a window server, so AppKit windows come up without any display setup.
       - name: Display tests
-        run: ./gradlew displayTest -Dwebview.requireDisplay=true
+        run: ./gradlew displayTest -Dwebview.requireDisplay=true -Dwebview.screenshots=true
+
+      - name: Screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: screenshots-macos-${{ matrix.arch }}
+          path: '**/build/screenshots/'
+          if-no-files-found: error
 
       - name: Test reports
         if: failure()
