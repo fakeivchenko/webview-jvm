@@ -30,6 +30,12 @@ import java.util.stream.Collectors;
  */
 @UtilityClass
 public class Webview {
+    /** System property naming the backend to use, overriding priority. */
+    public final String BACKEND_PROPERTY = "webview.backend";
+
+    /** Environment variable with the same meaning as {@link #BACKEND_PROPERTY}. */
+    public final String BACKEND_VARIABLE = "WEBVIEW_BACKEND";
+
     /**
      * Creates a window with {@link WebviewParameters#defaults()}.
      *
@@ -53,11 +59,25 @@ public class Webview {
         return backend;
     }
 
-    /** The backend that {@link #create} would use, if any. */
+    /**
+     * The backend that {@link #create} would use, if any.
+     *
+     * <p>Normally the highest-priority supported provider. {@code -Dwebview.backend=<name>} (or the
+     * {@code WEBVIEW_BACKEND} environment variable) names one explicitly instead - to try a fallback such as the Chrome
+     * backend on a machine that also has the native one - and is honoured only if that provider supports the
+     * machine.</p>
+     */
     public Optional<WebviewBackendProvider> provider() {
+        String requested = requestedBackend();
         return providers().stream()
                 .filter(WebviewBackendProvider::isSupported)
+                .filter(provider -> requested == null || provider.name().equals(requested))
                 .max(Comparator.comparingInt(WebviewBackendProvider::priority));
+    }
+
+    private String requestedBackend() {
+        String name = System.getProperty(BACKEND_PROPERTY, System.getenv(BACKEND_VARIABLE));
+        return name == null || name.isBlank() ? null : name.strip();
     }
 
     /** Every backend on the classpath, supported or not. Useful for diagnostics. */
@@ -70,6 +90,12 @@ public class Webview {
 
     private String noBackendMessage() {
         List<WebviewBackendProvider> providers = providers();
+        String requested = requestedBackend();
+        if (requested != null) {
+            return "Backend '" + requested + "' (from -D" + BACKEND_PROPERTY + " / " + BACKEND_VARIABLE
+                    + ") is not on the classpath or does not support this machine. Found: "
+                    + providers.stream().map(WebviewBackendProvider::name).collect(Collectors.joining(", "));
+        }
         if (providers.isEmpty()) {
             return "No webview backend on the classpath. Add one, for example webview-jvm-gtk on Linux.";
         }

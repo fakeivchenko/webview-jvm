@@ -12,7 +12,7 @@ import dev.ivchenko.webview.windows.binding.WebView2Runtime;
  * <p>Discovered through {@code META-INF/services}; on any other operating system it steps aside before touching a
  * single Windows library, so the jar is harmless on a Linux or macOS classpath.</p>
  */
-public final class WindowsWebviewBackendProvider implements WebviewBackendProvider {
+public class WindowsWebviewBackendProvider implements WebviewBackendProvider {
     @Override
     public String name() {
         return "win32-webview2";

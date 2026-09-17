@@ -4,6 +4,7 @@ import dev.ivchenko.webview.Webview;
 import dev.ivchenko.webview.WebviewBackend;
 import dev.ivchenko.webview.WebviewParameters;
 import dev.ivchenko.webview.testing.Loads;
+import dev.ivchenko.webview.testing.Screenshots;
 import dev.ivchenko.webview.testing.Tags;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
@@ -26,10 +27,12 @@ public abstract class BridgeContractTest extends DisplayContractTest {
                 throw new IllegalStateException("handler exploded");
             });
 
+            webview.show();
             webview.loadResource("test-app/index.html");
             loaded.get(60, TimeUnit.SECONDS);
 
             Assertions.assertEquals("bridge test", Loads.eval(webview, "document.querySelector('h1').textContent"));
+            Screenshots.capture("bridge-classpath-app");
             Assertions.assertEquals("true", Loads.eval(webview, "String(window.__scriptLoaded)"));
             Assertions.assertEquals("rgb(17, 34, 51)",
                     Loads.eval(webview, "getComputedStyle(document.querySelector('h1')).color"));

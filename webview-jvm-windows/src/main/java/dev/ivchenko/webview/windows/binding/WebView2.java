@@ -47,6 +47,7 @@ public class WebView2 {
     // ICoreWebView2Environment
     private final int ENVIRONMENT_CREATE_CONTROLLER = 3;
     private final int ENVIRONMENT_CREATE_RESPONSE = 4;
+    private final int ENVIRONMENT_GET_BROWSER_VERSION_STRING = 5;
     // ICoreWebView2Controller
     private final int CONTROLLER_PUT_IS_VISIBLE = 4;
     private final int CONTROLLER_PUT_BOUNDS = 6;
@@ -158,6 +159,15 @@ public class WebView2 {
             } finally {
                 Com.release(settings);
             }
+        }
+    }
+
+    /** {@code ICoreWebView2Environment::get_BrowserVersionString}: the runtime's version, e.g. {@code 138.0.3351.65}. */
+    public String browserVersion(MemorySegment environment) {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment out = arena.allocate(Signatures.C_POINTER);
+            Com.check("get_BrowserVersionString", Com.call(environment, ENVIRONMENT_GET_BROWSER_VERSION_STRING, out));
+            return Wide.take(Com.pointerAt(out));
         }
     }
 

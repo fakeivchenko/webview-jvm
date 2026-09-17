@@ -17,6 +17,13 @@ public interface WebviewBackend extends AutoCloseable {
     /** The window title. */
     String title();
 
+    /**
+     * The web engine drawing the page, with its version - for example {@code "WebKitGTK 2.48.3"},
+     * {@code "WebView2 138.0.3351.65"} or {@code "Chromium 153.0.8010.36"}. Diagnostics, not a contract: the exact
+     * wording is the backend's.
+     */
+    String engine();
+
     /** Sets the window title. */
     void title(String title);
 

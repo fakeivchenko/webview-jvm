@@ -39,6 +39,12 @@ public class WebKit {
             NativeLibraries.downcall(WEBKIT, "webkit_web_view_load_html", Signatures.VOID_POINTER_POINTER_POINTER);
     private final MethodHandle WEB_VIEW_GET_URI =
             NativeLibraries.downcall(WEBKIT, "webkit_web_view_get_uri", Signatures.POINTER_POINTER);
+    private final MethodHandle GET_MAJOR_VERSION =
+            NativeLibraries.downcall(WEBKIT, "webkit_get_major_version", Signatures.INT_VOID);
+    private final MethodHandle GET_MINOR_VERSION =
+            NativeLibraries.downcall(WEBKIT, "webkit_get_minor_version", Signatures.INT_VOID);
+    private final MethodHandle GET_MICRO_VERSION =
+            NativeLibraries.downcall(WEBKIT, "webkit_get_micro_version", Signatures.INT_VOID);
     private final MethodHandle EVALUATE_JAVASCRIPT = NativeLibraries.downcall(
             WEBKIT, "webkit_web_view_evaluate_javascript", Signatures.WEBKIT_EVALUATE_JAVASCRIPT);
     private final MethodHandle EVALUATE_JAVASCRIPT_FINISH = NativeLibraries.downcall(
@@ -171,6 +177,13 @@ public class WebKit {
     @SneakyThrows
     public String uri(MemorySegment webView) {
         return NativeLibraries.string((MemorySegment) WEB_VIEW_GET_URI.invokeExact(webView));
+    }
+
+    /** The version of the WebKitGTK library actually loaded, as {@code major.minor.micro}. */
+    @SneakyThrows
+    public String version() {
+        return "%d.%d.%d".formatted((int) GET_MAJOR_VERSION.invokeExact(), (int) GET_MINOR_VERSION.invokeExact(),
+                (int) GET_MICRO_VERSION.invokeExact());
     }
 
     /** The path part of a custom-scheme request, for example {@code /app/index.html}. */

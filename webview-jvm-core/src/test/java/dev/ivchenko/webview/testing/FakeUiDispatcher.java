@@ -6,7 +6,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /** A {@link UiDispatcher} over a queue instead of a toolkit: the same threading, no native code. */
-public final class FakeUiDispatcher extends UiDispatcher {
+public class FakeUiDispatcher extends UiDispatcher {
     private final BlockingQueue<Boolean> wakeUps = new LinkedBlockingQueue<>();
     private final Throwable initFailure;
 

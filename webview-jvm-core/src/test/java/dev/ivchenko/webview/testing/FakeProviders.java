@@ -8,13 +8,13 @@ import dev.ivchenko.webview.spi.WebviewBackendProvider;
  * Providers registered in {@code META-INF/services} of the test classpath. {@link #supported} switches the two viable
  * ones off together, since a service file cannot be edited per test.
  */
-public final class FakeProviders {
+public class FakeProviders {
     public static volatile boolean supported = true;
 
     private FakeProviders() {
     }
 
-    public static final class Preferred implements WebviewBackendProvider {
+    public static class Preferred implements WebviewBackendProvider {
         @Override
         public String name() {
             return "fake-preferred";
@@ -36,7 +36,7 @@ public final class FakeProviders {
         }
     }
 
-    public static final class Fallback implements WebviewBackendProvider {
+    public static class Fallback implements WebviewBackendProvider {
         @Override
         public String name() {
             return "fake-fallback";
@@ -53,7 +53,7 @@ public final class FakeProviders {
         }
     }
 
-    public static final class OtherPlatform implements WebviewBackendProvider {
+    public static class OtherPlatform implements WebviewBackendProvider {
         @Override
         public String name() {
             return "fake-other-platform";

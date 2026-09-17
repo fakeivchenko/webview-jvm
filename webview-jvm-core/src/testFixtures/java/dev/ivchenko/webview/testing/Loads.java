@@ -8,7 +8,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 /** Waits for page loads, so tests read state only once the engine has settled. */
-public final class Loads {
+public class Loads {
     private Loads() {
     }
 

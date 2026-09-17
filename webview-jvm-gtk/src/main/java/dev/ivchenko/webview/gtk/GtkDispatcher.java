@@ -17,7 +17,7 @@ import java.lang.invoke.MethodType;
  * sits in {@code gtk_main()} for the lifetime of the process. Work posted from other threads is pulled in through a
  * {@code g_idle_add} source - the one GLib entry point that is safe to call from anywhere.</p>
  */
-public final class GtkDispatcher extends UiDispatcher {
+public class GtkDispatcher extends UiDispatcher {
     private static final GtkDispatcher INSTANCE = new GtkDispatcher();
 
     /** Shared {@code GSourceFunc} stub; the queue in {@link UiDispatcher} carries the work. */

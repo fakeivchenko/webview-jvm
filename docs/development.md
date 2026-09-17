@@ -17,6 +17,10 @@ the skip into a failure, and the tests run under Xvfb:
 xvfb-run -a ./gradlew displayTest -Dwebview.requireDisplay=true
 ```
 
+`-Dwebview.screenshots=true` makes the display tests photograph the screen while their window is
+up, into `build/screenshots/` of each backend module; CI attaches them to every run as the
+`screenshots-linux` and `screenshots-windows` artifacts.
+
 `Dockerfile.test` reproduces the CI environment (Ubuntu 24.04, GTK, WebKitGTK, Xvfb) locally:
 
 ```bash

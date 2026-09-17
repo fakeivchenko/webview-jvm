@@ -30,7 +30,7 @@ import java.util.concurrent.CompletableFuture;
  * are static and dispatch through {@link CallbackRegistry}, so a single upcall stub serves every window instead of one
  * stub per instance.</p>
  */
-public final class GtkWebviewBackend extends AbstractWebviewBackend {
+public class GtkWebviewBackend extends AbstractWebviewBackend {
     private static final CallbackRegistry<GtkWebviewBackend> WINDOWS = new CallbackRegistry<>();
     private static final CallbackRegistry<CompletableFuture<String>> PENDING_EVALUATIONS = new CallbackRegistry<>();
 
@@ -114,6 +114,11 @@ public final class GtkWebviewBackend extends AbstractWebviewBackend {
             WINDOWS.remove(this.id);
             throw e;
         }
+    }
+
+    @Override
+    public String engine() {
+        return "WebKitGTK " + WebKit.version();
     }
 
     @Override
@@ -239,9 +244,9 @@ public final class GtkWebviewBackend extends AbstractWebviewBackend {
         this.markClosed();
     }
 
-    @SuppressWarnings({"unused", "resource"})
     // --- signal handlers, bound by name from the upcall stubs above; signatures are GTK's ---
 
+    @SuppressWarnings({"unused", "resource"})
     private static void onDestroy(MemorySegment widget, MemorySegment userData) {
         try {
             GtkWebviewBackend backend = WINDOWS.unregister(userData);

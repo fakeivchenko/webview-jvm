@@ -6,6 +6,7 @@ import dev.ivchenko.webview.WebviewParameters;
 import dev.ivchenko.webview.event.LoadEvent;
 import dev.ivchenko.webview.testing.Loads;
 import dev.ivchenko.webview.testing.LocalPages;
+import dev.ivchenko.webview.testing.Screenshots;
 import dev.ivchenko.webview.testing.Tags;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
@@ -49,8 +50,10 @@ public abstract class WindowContractTest extends DisplayContractTest {
             Assertions.assertEquals(url, webview.url());
             Assertions.assertEquals("Local page", Loads.eval(webview, "document.title"));
             Assertions.assertEquals("Rendered", Loads.eval(webview, "document.querySelector('h1').textContent"));
+            Screenshots.capture("window-local-page");
 
             Assertions.assertEquals("webview-jvm :: page", webview.title());
+            Assertions.assertTrue(webview.engine().matches(".+ \\d+(\\.\\d+)+"), "engine: " + webview.engine());
             Assertions.assertTrue(webview.width() > 0 && webview.height() > 0, "Window has no size");
         }
     }
@@ -69,8 +72,7 @@ public abstract class WindowContractTest extends DisplayContractTest {
 
             webview.resizable(true);
             webview.size(640, 480);
-            // Toolkits apply the request asynchronously; poll briefly rather than assume a frame.
-            // Polling is the point: the toolkit applies the size asynchronously and offers no completion signal.
+            // Toolkits apply the request asynchronously and offer no completion signal; polling is the point.
             for (int attempt = 0; attempt < 50 && webview.width() != 640; attempt++) {
                 //noinspection BusyWait
                 Thread.sleep(50);
