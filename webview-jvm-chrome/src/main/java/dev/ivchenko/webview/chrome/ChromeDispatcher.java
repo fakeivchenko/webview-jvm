@@ -1,6 +1,6 @@
 package dev.ivchenko.webview.chrome;
 
-import dev.ivchenko.webview.ui.UiDispatcher;
+import dev.ivchenko.webview.ui.EventLoopDispatcher;
 
 import java.util.concurrent.Semaphore;
 
@@ -11,7 +11,7 @@ import java.util.concurrent.Semaphore;
  * dispatch thread per backend family, and ordering the browser's events and the application's calls on one thread
  * keeps the backend as simple as the native ones.</p>
  */
-class ChromeDispatcher extends UiDispatcher {
+class ChromeDispatcher extends EventLoopDispatcher {
     private static final ChromeDispatcher INSTANCE = new ChromeDispatcher();
 
     private final Semaphore wake = new Semaphore(0);

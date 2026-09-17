@@ -23,6 +23,7 @@ dependencies {
     implementation(project(":webview-jvm-core"))
     runtimeOnly(project(":webview-jvm-gtk"))
     runtimeOnly(project(":webview-jvm-windows"))
+    runtimeOnly(project(":webview-jvm-macos"))
     runtimeOnly(project(":webview-jvm-chrome"))
     runtimeOnly("org.eclipse.parsson:parsson:1.1.9")
 

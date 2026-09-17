@@ -43,7 +43,7 @@ echo "--- application ---"; cat "$workdir/app.log"
 echo "--- page reported ---"; grep -oE 'GET /(report|heap)[^ ]*' "$workdir/server.log" || true
 
 expected_hash=$(printf 'webview-jvm' | sha256sum | cut -d' ' -f1)
-grep -qE "GET /report\?backend=(gtk3-webkit2gtk-4.1|win32-webview2|chromium)&hash=$expected_hash" "$workdir/server.log" \
+grep -qE "GET /report\?backend=(gtk3-webkit2gtk-4.1|win32-webview2|cocoa-wkwebview|chromium)&hash=$expected_hash" "$workdir/server.log" \
     || { echo "FAIL: page -> Java bridge did not answer correctly"; exit 1; }
 grep -q 'GET /heap?mb=' "$workdir/server.log" \
     || { echo "FAIL: Java -> page eval never arrived"; exit 1; }

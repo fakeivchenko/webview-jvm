@@ -1,12 +1,12 @@
 package dev.ivchenko.webview.testing;
 
-import dev.ivchenko.webview.ui.UiDispatcher;
+import dev.ivchenko.webview.ui.EventLoopDispatcher;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-/** A {@link UiDispatcher} over a queue instead of a toolkit: the same threading, no native code. */
-public class FakeUiDispatcher extends UiDispatcher {
+/** A {@link EventLoopDispatcher} over a queue instead of a toolkit: the same threading, no native code. */
+public class FakeUiDispatcher extends EventLoopDispatcher {
     private final BlockingQueue<Boolean> wakeUps = new LinkedBlockingQueue<>();
     private final Throwable initFailure;
 

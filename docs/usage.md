@@ -98,5 +98,5 @@ The value also comes from `-Dwebview.devServerUrl=…` or from
 `Webview.create()` takes the highest-priority backend that supports the machine: the native one for
 the platform, or - when its engine is missing and the experimental `webview-jvm-chrome` is on the classpath -
 an installed Chrome, Chromium or Edge. `-Dwebview.backend=<name>` or `WEBVIEW_BACKEND` names one
-explicitly (`gtk3-webkit2gtk-4.1`, `win32-webview2`, `chromium`); `-Dwebview.chrome=<path>`
+explicitly (`gtk3-webkit2gtk-4.1`, `win32-webview2`, `cocoa-wkwebview`, `chromium`); `-Dwebview.chrome=<path>`
 or `WEBVIEW_CHROME` points the Chrome backend at a particular executable.
