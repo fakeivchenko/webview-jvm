@@ -7,9 +7,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import javax.imageio.ImageIO;
 
 class WebviewPluginTest {
     @TempDir
@@ -19,7 +27,12 @@ class WebviewPluginTest {
     void writeProject() throws IOException {
         Files.writeString(this.project.resolve("settings.gradle.kts"), "rootProject.name = \"demo\"\n");
         Files.createDirectories(this.project.resolve("icons"));
-        Files.write(this.project.resolve("icons/app.ico"), new byte[] {0, 0, 1, 0});
+        BufferedImage image = new BufferedImage(300, 300, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics = image.createGraphics();
+        graphics.setColor(Color.ORANGE);
+        graphics.fillOval(20, 20, 260, 260);
+        graphics.dispose();
+        ImageIO.write(image, "png", this.project.resolve("icons/app.png").toFile());
         Files.writeString(this.project.resolve("build.gradle.kts"), """
                 plugins {
                     id("application")
@@ -31,8 +44,8 @@ class WebviewPluginTest {
                 webview {
                     imageName = "demo-app"
                     buildArgs.add("--verbose")
+                    icon = file("icons/app.png")
                     windows {
-                        icon = file("icons/app.ico")
                         fileDescription = "Demo \\"quoted\\""
                         companyName = "Example & Co"
                     }
@@ -61,11 +74,36 @@ class WebviewPluginTest {
     }
 
     @Test
+    void rendersTheIconAtEverySize() throws IOException {
+        this.run("generateWindowsIcon");
+        ByteBuffer ico = ByteBuffer.wrap(Files.readAllBytes(this.project.resolve("build/webview/windows/app.ico")))
+                .order(ByteOrder.LITTLE_ENDIAN);
+        Assertions.assertEquals(1, ico.getShort(2), "icon type");
+        Assertions.assertEquals(7, ico.getShort(4), "entries");
+        List<Integer> sizes = new ArrayList<>();
+        for (int entry = 0; entry < 7; entry++) {
+            int width = ico.get(6 + entry * 16) & 0xFF;
+            sizes.add(width == 0 ? 256 : width);
+            int length = ico.getInt(6 + entry * 16 + 8);
+            int offset = ico.getInt(6 + entry * 16 + 12);
+            Assertions.assertTrue(offset + length <= ico.capacity(), "entry " + entry + " lies inside the file");
+        }
+        Assertions.assertEquals(List.of(16, 24, 32, 48, 64, 128, 256), sizes);
+        int last = 6 + 6 * 16;
+        byte[] png = new byte[8];
+        ico.get(ico.getInt(last + 12), png);
+        Assertions.assertArrayEquals(new byte[] {(byte) 0x89, 'P', 'N', 'G', '\r', '\n', 0x1A, '\n'}, png,
+                "the 256 pixel entry is PNG");
+    }
+
+    @Test
     void generatesTheWindowsResourceScript() throws IOException {
         this.run("generateWindowsResourceScript");
         String script = Files.readString(this.project.resolve("build/webview/windows/app.rc"));
-        Assertions.assertTrue(script.contains("1 ICON \"" + this.project.resolve("icons/app.ico").toAbsolutePath()
-                .toString().replace('\\', '/') + "\""), script);
+        Assertions.assertTrue(script.contains("1 ICON \"" + this.project.resolve("build/webview/windows/app.ico")
+                .toAbsolutePath().toString().replace('\\', '/') + "\""), script);
+        Assertions.assertTrue(Files.exists(this.project.resolve("build/webview/windows/app.ico")),
+                "the script task renders the icon first");
         Assertions.assertTrue(script.contains("FILEVERSION     1,2,3,0"), script);
         Assertions.assertTrue(script.contains("VALUE \"FileDescription\", \"Demo \"\"quoted\"\"\""), script);
         Assertions.assertTrue(script.contains("VALUE \"ProductName\", \"demo-app\""), script);

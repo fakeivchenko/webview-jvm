@@ -46,6 +46,18 @@ public class WebviewPlugin implements Plugin<Project> {
             application.setApplicationDefaultJvmArgs(jvmArgs);
         });
 
+        TaskProvider<GenerateWindowsIcon> windowsIcon = project.getTasks().register(
+                "generateWindowsIcon", GenerateWindowsIcon.class, task -> {
+                    task.setDescription("Renders the application icon into a multi-size Windows .ico.");
+                    task.setGroup("build");
+                    task.getSource().set(extension.getIcon());
+                    task.getSizes().set(extension.getWindows().getIconSizes());
+                    task.getIcon().set(project.getLayout().getBuildDirectory().file("webview/windows/app.ico"));
+                    task.onlyIf(_ -> extension.getIcon().isPresent());
+                });
+        extension.getWindows().getIcon().convention(windowsIcon.flatMap(GenerateWindowsIcon::getIcon)
+                .filter(_ -> extension.getIcon().isPresent()));
+
         TaskProvider<GenerateWindowsResourceScript> resourceScript = project.getTasks().register(
                 "generateWindowsResourceScript", GenerateWindowsResourceScript.class, task -> {
                     task.setDescription("Writes the icon and version resource script of the Windows executable.");
@@ -99,6 +111,7 @@ public class WebviewPlugin implements Plugin<Project> {
 
         WindowsExtension windows = extension.getWindows();
         windows.getConsole().convention(false);
+        windows.getIconSizes().convention(List.of(16, 24, 32, 48, 64, 128, 256));
         windows.getFileDescription().convention(extension.getImageName());
         windows.getProductName().convention(extension.getImageName());
         windows.getVersion().convention(project.provider(() -> project.getVersion().toString()));

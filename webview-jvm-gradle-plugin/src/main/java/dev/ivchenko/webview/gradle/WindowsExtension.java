@@ -1,6 +1,7 @@
 package dev.ivchenko.webview.gradle;
 
 import org.gradle.api.file.RegularFileProperty;
+import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 
 /**
@@ -11,8 +12,14 @@ import org.gradle.api.provider.Property;
  * {@link #getResourceScript()} replaces the generated script with one of your own.</p>
  */
 public abstract class WindowsExtension {
-    /** {@code .ico} file for the executable and its windows; resource id 1, which the backend loads at run time. */
+    /**
+     * A ready-made {@code .ico} for the executable and its windows, replacing the one rendered from
+     * {@link WebviewExtension#getIcon()}; resource id 1, which the backend loads at run time.
+     */
     public abstract RegularFileProperty getIcon();
+
+    /** Pixel sizes rendered into the generated {@code .ico}; default 16, 24, 32, 48, 64, 128 and 256. */
+    public abstract ListProperty<Integer> getIconSizes();
 
     /** Whether to keep a console window; default off, so a double-click opens the window and nothing else. */
     public abstract Property<Boolean> getConsole();

@@ -21,12 +21,14 @@ plugins {
 
 webview {
     imageName = "my-app"            // default: the project name
+    icon = file("src/main/icons/app.png")   // one square PNG, 256 px or more; rendered per platform
     optimizeForSize = true          // -Os; default true
     maxHeapSize = "64m"             // -R:MaxHeapSize; default 64m, "" to leave unset
     buildArgs.add("--verbose")      // appended to native-image
 
     windows {
-        icon = file("src/main/windows/app.ico")   // resource id 1: the executable's and the window's icon
+        icon = file("custom.ico")                  // a ready-made .ico instead of the one rendered from `icon`
+        iconSizes = listOf(16, 24, 32, 48, 64, 128, 256)   // sizes rendered into the .ico
         console = false                            // default false: GUI subsystem, no console window
         fileDescription = "My app"                 // default: imageName
         productName = "My product"                 // default: imageName
@@ -50,7 +52,8 @@ What the plugin does:
 - Adds `--enable-native-access=ALL-UNNAMED` to the native image and to the `application` plugin's
   default JVM arguments, so `run` needs nothing extra.
 - Sets `toolchainDetection = false`: Gradle runs on any JDK, `GRAALVM_HOME` names the GraalVM.
-- Windows: `generateWindowsResourceScript` writes the `.rc` from the settings above,
+- Windows: `generateWindowsIcon` renders `icon` into a multi-size `.ico` (32-bit bitmaps up to
+  128 px, PNG at 256 px), `generateWindowsResourceScript` writes the `.rc` from the settings above,
   `compileWindowsResources` compiles it with `rc.exe` (from the `PATH` of a Visual Studio prompt,
   or the newest installed Windows SDK), and the `.res` is linked in with `/SUBSYSTEM:WINDOWS` and
   `/ENTRY:mainCRTStartup` unless `console = true`.

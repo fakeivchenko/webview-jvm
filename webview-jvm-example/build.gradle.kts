@@ -18,8 +18,8 @@ application {
 }
 
 webview {
+    icon = file("src/main/icons/app.png")
     windows {
-        icon = file("src/main/windows/app.ico")
         productName = "webview-jvm"
     }
     macos {

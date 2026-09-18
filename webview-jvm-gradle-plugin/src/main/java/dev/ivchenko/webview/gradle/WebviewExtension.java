@@ -1,6 +1,7 @@
 package dev.ivchenko.webview.gradle;
 
 import org.gradle.api.Action;
+import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Nested;
@@ -12,9 +13,9 @@ import org.gradle.api.tasks.Nested;
  * <pre>{@code
  * webview {
  *     imageName = "my-app"
+ *     icon = file("src/main/icons/app.png")
  *     maxHeapSize = "64m"
  *     windows {
- *         icon = file("src/main/windows/app.ico")
  *         fileDescription = "My app"
  *     }
  *     macos {
@@ -26,6 +27,12 @@ import org.gradle.api.tasks.Nested;
 public abstract class WebviewExtension {
     /** Name of the executable; defaults to the project name. */
     public abstract Property<String> getImageName();
+
+    /**
+     * The application icon as one image, a square PNG of 256 pixels or more; the plugin renders every size a platform
+     * wants from it. On Windows it becomes the executable's {@code .ico}.
+     */
+    public abstract RegularFileProperty getIcon();
 
     /** {@code -Os}: a desktop application holds little live data, so size wins over peak throughput. Default on. */
     public abstract Property<Boolean> getOptimizeForSize();

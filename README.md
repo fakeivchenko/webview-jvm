@@ -115,9 +115,7 @@ plugins {
 }
 
 webview {
-    windows {
-        icon = file("src/main/windows/app.ico")
-    }
+    icon = file("src/main/icons/app.png")
     macos {
         bundleIdentifier = "com.example.myapp"
     }
