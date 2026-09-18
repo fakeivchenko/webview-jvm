@@ -1,3 +1,7 @@
+pluginManagement {
+    includeBuild("webview-jvm-gradle-plugin")
+}
+
 rootProject.name = "webview-jvm"
 include("webview-jvm-core")
 include("webview-jvm-gtk")

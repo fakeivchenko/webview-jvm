@@ -104,8 +104,28 @@ dependencies {
 
 ## Native executable
 
+The Gradle plugin configures everything `native-image` needs for a webview-jvm application - the
+flags, `-Os`, a capped heap, a Windows GUI executable with icon and version block, an embedded
+macOS `Info.plist` - on top of the GraalVM Native Build Tools:
+
+```kotlin
+plugins {
+    id("application")
+    id("dev.ivchenko.webview") version "<version>"
+}
+
+webview {
+    windows {
+        icon = file("src/main/windows/app.ico")
+    }
+    macos {
+        bundleIdentifier = "com.example.myapp"
+    }
+}
+```
+
 ```bash
-GRAALVM_HOME=/path/to/graalvm ./gradlew :webview-jvm-example:nativeCompile
+GRAALVM_HOME=/path/to/graalvm ./gradlew nativeCompile
 ```
 
 Or, with nothing installed but Docker:
@@ -114,9 +134,8 @@ Or, with nothing installed but Docker:
 docker buildx build -f Dockerfile.native -o build/native-docker .
 ```
 
-The Windows build produces a GUI executable with its own icon - a double-click opens the window
-and nothing else. Details, container build and metadata are in
-[docs/development.md](docs/development.md#native-executable).
+Every setting is optional; the plugin's [reference](docs/gradle-plugin.md) lists them. Details,
+container build and metadata are in [docs/development.md](docs/development.md#native-executable).
 
 ## Example
 

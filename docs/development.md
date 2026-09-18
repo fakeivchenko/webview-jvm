@@ -45,10 +45,14 @@ docker buildx build -f Dockerfile.native -o build/native-docker .
 
 On Windows the build needs the Visual Studio C++ toolchain in the environment (an *x64 Native
 Tools* prompt, or `vcvars64.bat`). The result is a **GUI-subsystem** executable - a double-click
-opens the window and nothing else, no console - with an icon and version block from
-`src/main/windows/app.rc` and `app.ico`, compiled by a Gradle task with the Windows SDK's
-`rc.exe` and linked into the image. The window class loads icon resource 1 of the running
-module, so the same icon shows in the title bar and taskbar.
+opens the window and nothing else, no console - with an icon and version block generated and
+compiled by the [Gradle plugin](gradle-plugin.md). The window class loads icon resource 1 of the
+running module, so the same icon shows in the title bar and taskbar.
+
+The plugin lives in `webview-jvm-gradle-plugin`, an included build (`pluginManagement {
+includeBuild(...) }` in `settings.gradle.kts`), so the example applies it by id straight from the
+source tree; `./gradlew :webview-jvm-gradle-plugin:test` runs its TestKit tests and the root
+`publish` task publishes it alongside the library.
 
 The reachability metadata for the FFM stubs ships inside each backend jar, so an application
 registers nothing itself. A contract test (`NativeImageMetadataContractTest`) keeps that metadata

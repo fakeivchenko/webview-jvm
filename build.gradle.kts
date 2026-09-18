@@ -62,3 +62,12 @@ subprojects {
         }
     }
 }
+
+// The Gradle plugin is an included build: its publishing rides along with the library's.
+tasks.register("publish") {
+    dependsOn(gradle.includedBuild("webview-jvm-gradle-plugin").task(":publish"))
+}
+
+tasks.register("publishToMavenLocal") {
+    dependsOn(gradle.includedBuild("webview-jvm-gradle-plugin").task(":publishToMavenLocal"))
+}
